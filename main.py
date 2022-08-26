@@ -78,8 +78,9 @@ logger = logging.getLogger(__name__)
     SORT_BY_LOSE,
     NEXT_HERO_LIST,
     SKIP_HEROES,
-    BACK_TO_HERO_LIST
-) = range(59)
+    BACK_TO_HERO_LIST,
+    PLAYER_NAME
+) = range(60)
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["opendotabot"]
@@ -314,6 +315,7 @@ async def save_account_id(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
         context.user_data[ACCOUNT_ID] = account_id
         res_json = response.json()
+        context.user_data[PLAYER_NAME] = res_json["profile"]["personaname"]
         text = "Player's name: " + res_json["profile"]["personaname"]
         await update.message.reply_text(text=text, reply_markup=keyboard)
         return PLAYERS
@@ -352,7 +354,7 @@ async def player_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         InlineKeyboardButton(text="MAIN MENU", callback_data=MAIN_MENU)
     ]]
     keyboard = InlineKeyboardMarkup(search_buttons)
-    text = "account id: " + context.user_data[ACCOUNT_ID]
+    text = "account id: " + context.user_data[ACCOUNT_ID] + ", name: " + context.user_data[PLAYER_NAME]
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
     return PLAYERS
