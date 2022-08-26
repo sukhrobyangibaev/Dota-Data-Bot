@@ -141,15 +141,28 @@ def matches_to_str(res_json) -> str:
     return text
 
 
+def count_winrate(games, wins) -> str:
+    return str(int((wins * 100) / games)) + "%"
+
+
 def hero_stats(res_json) -> str:
     text = ""
     for i in range(10):
         hero = res_json[i]
         games = hero["games"]
         wins = hero["win"]
-        winrate = int((wins * 100) / games)
-        text += str(i + 1) + ". " + heroes_col.find_one({"id": int(hero["hero_id"])}).get("localized_name")
-        text += ", games: " + str(games) + ", winrate: " + str(winrate) + "%\n"
+        winrate = count_winrate(games, wins)
+        text += str(i + 1) + ". " + get_hero_name(int(hero["hero_id"]))
+        text += " - games: " + str(games) + ", winrate: " + winrate + "\n"
+    return text
+
+
+def peers_to_text(res_json) -> str:
+    text = ""
+    for peer in res_json:
+        games = peer["games"]
+        winrate = count_winrate(games, peer["win"])
+        text += peer["personaname"] + " - games " + str(games) + ", winrate " + winrate + "\n"
     return text
 
 
@@ -502,6 +515,22 @@ async def player_heroes_stats(update: Update, context: ContextTypes.DEFAULT_TYPE
     return PLAYER_HEROES
 
 
+# MAIN MENU -> PLAYERS MENU -> PEERS -----------------------------------------------------------------------
+async def peers(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.callback_query.answer()
+
+    account_id = context.user_data.get(ACCOUNT_ID)
+    response = requests.get(f"https://api.opendota.com/api/players/{account_id}/peers",
+                            params={"sort": "games"})
+    res_json = response.json()
+    text = peers_to_text(res_json)
+    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
+    keyboard = InlineKeyboardMarkup.from_button(button)
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+    return PEERS
+
+
 def main() -> None:
     app = Application.builder().token("5581179119:AAFd8Da6TQdmTwtGqdn-3QQp2vcsSDnDEms").build()
 
@@ -539,6 +568,9 @@ def main() -> None:
             PLAYER_HEROES: [
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
             ],
+            PEERS: [
+                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+            ],
             PLAYERS: [
                 CallbackQueryHandler(type_account_id, pattern=f"^{WRITE_ANOTHER_ID}$"),
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$"),
@@ -546,7 +578,8 @@ def main() -> None:
                 CallbackQueryHandler(wl, pattern=f"^{WL}$"),
                 CallbackQueryHandler(recent_matches, pattern=f"^{RECENT_MATCHES}$"),
                 CallbackQueryHandler(player_matches, pattern=f"^{PLAYER_MATCHES}$"),
-                CallbackQueryHandler(player_heroes_stats, pattern=f"^{PLAYER_HEROES}$")
+                CallbackQueryHandler(player_heroes_stats, pattern=f"^{PLAYER_HEROES}$"),
+                CallbackQueryHandler(peers, pattern=f"^{PEERS}$")
             ]
         },
         fallbacks=[]
