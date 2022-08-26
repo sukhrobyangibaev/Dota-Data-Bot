@@ -188,6 +188,19 @@ def leaver_status_to_text(res_json) -> str:
     return text
 
 
+def wordcloud_to_text(res_json) -> str:
+    words = res_json["my_word_counts"] | res_json["all_word_counts"]
+    sorted_words = dict(sorted(words.items(), key=lambda item: item[1], reverse=True))
+    counter = 0
+    text = ""
+    for word, num in sorted_words.items():
+        counter += 1
+        text += word + " - " + str(num) + "\n"
+        if counter == 10:
+            break
+    return text
+
+
 kda_obj = {
     SORT_BY_KILLS: "kills",
     SORT_BY_DEATHS: "deaths",
@@ -354,8 +367,8 @@ async def player_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         InlineKeyboardButton(text="TOTALS", callback_data=TOTALS)
     ], [
         InlineKeyboardButton(text="LEAVER STATUS", callback_data=LEAVER_STATUS),
-        InlineKeyboardButton(text="HISTOGRAMS", callback_data=HISTOGRAMS),
-        InlineKeyboardButton(text="WARDMAP", callback_data=WARDMAP)
+        # InlineKeyboardButton(text="HISTOGRAMS", callback_data=HISTOGRAMS),
+        # InlineKeyboardButton(text="WARDMAP", callback_data=WARDMAP)
     ], [
         InlineKeyboardButton(text="WORDCLOUD", callback_data=WORDCLOUD),
         InlineKeyboardButton(text="RATINGS", callback_data=RATINGS),
@@ -585,6 +598,21 @@ async def leaver_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     return LEAVER_STATUS
 
 
+# MAIN MENU -> PLAYERS MENU -> WORDCLOUD -----------------------------------------------------------------------
+async def wordcloud(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.callback_query.answer()
+
+    account_id = context.user_data.get(ACCOUNT_ID)
+    response = requests.get(f"https://api.opendota.com/api/players/{account_id}/wordcloud")
+    res_json = response.json()
+    text = wordcloud_to_text(res_json)
+    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
+    keyboard = InlineKeyboardMarkup.from_button(button)
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+    return WORDCLOUD
+
+
 def main() -> None:
     app = Application.builder().token("5581179119:AAFd8Da6TQdmTwtGqdn-3QQp2vcsSDnDEms").build()
 
@@ -631,6 +659,9 @@ def main() -> None:
             LEAVER_STATUS: [
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
             ],
+            WORDCLOUD: [
+                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+            ],
             PLAYERS: [
                 CallbackQueryHandler(type_account_id, pattern=f"^{WRITE_ANOTHER_ID}$"),
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$"),
@@ -641,7 +672,8 @@ def main() -> None:
                 CallbackQueryHandler(player_heroes_stats, pattern=f"^{PLAYER_HEROES}$"),
                 CallbackQueryHandler(peers, pattern=f"^{PEERS}$"),
                 CallbackQueryHandler(totals, pattern=f"^{TOTALS}$"),
-                CallbackQueryHandler(leaver_status, pattern=f"^{LEAVER_STATUS}$")
+                CallbackQueryHandler(leaver_status, pattern=f"^{LEAVER_STATUS}$"),
+                CallbackQueryHandler(wordcloud, pattern=f"^{WORDCLOUD}$")
             ]
         },
         fallbacks=[]
