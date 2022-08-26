@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
     PLAYER_HEROES,
     PEERS,
     TOTALS,
-    COUNTS,
+    LEAVER_STATUS,
     HISTOGRAMS,
     WARDMAP,
     WORDCLOUD,
@@ -173,6 +173,18 @@ def totals_to_text(res_json) -> str:
            f"Denies - {res_json[7]['sum']}\n" \
            f"Hours played - {int(res_json[9]['sum'] / 3600)}\n" \
            f"Courier kills - {res_json[17]['sum']}"
+    return text
+
+
+def leaver_status_to_text(res_json) -> str:
+    text = ""
+    ls = res_json["leaver_status"]
+    if "2" in ls:
+        text += "Disconnect: " + str(ls["2"]["games"])
+    if "3" in ls:
+        text += "\nAbandoned: " + str(ls["3"]["games"])
+    if "4" in ls:
+        text += "\nAFK: " + str(ls["4"]["games"])
     return text
 
 
@@ -341,7 +353,7 @@ async def player_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         InlineKeyboardButton(text="PEERS", callback_data=PEERS),
         InlineKeyboardButton(text="TOTALS", callback_data=TOTALS)
     ], [
-        InlineKeyboardButton(text="COUNTS", callback_data=COUNTS),
+        InlineKeyboardButton(text="LEAVER STATUS", callback_data=LEAVER_STATUS),
         InlineKeyboardButton(text="HISTOGRAMS", callback_data=HISTOGRAMS),
         InlineKeyboardButton(text="WARDMAP", callback_data=WARDMAP)
     ], [
@@ -558,6 +570,21 @@ async def totals(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return TOTALS
 
 
+# MAIN MENU -> PLAYERS MENU -> TOTALS -----------------------------------------------------------------------
+async def leaver_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.callback_query.answer()
+
+    account_id = context.user_data.get(ACCOUNT_ID)
+    response = requests.get(f"https://api.opendota.com/api/players/{account_id}/counts")
+    res_json = response.json()
+    text = leaver_status_to_text(res_json)
+    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
+    keyboard = InlineKeyboardMarkup.from_button(button)
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+    return LEAVER_STATUS
+
+
 def main() -> None:
     app = Application.builder().token("5581179119:AAFd8Da6TQdmTwtGqdn-3QQp2vcsSDnDEms").build()
 
@@ -601,6 +628,9 @@ def main() -> None:
             TOTALS: [
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
             ],
+            LEAVER_STATUS: [
+                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+            ],
             PLAYERS: [
                 CallbackQueryHandler(type_account_id, pattern=f"^{WRITE_ANOTHER_ID}$"),
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$"),
@@ -610,7 +640,8 @@ def main() -> None:
                 CallbackQueryHandler(player_matches, pattern=f"^{PLAYER_MATCHES}$"),
                 CallbackQueryHandler(player_heroes_stats, pattern=f"^{PLAYER_HEROES}$"),
                 CallbackQueryHandler(peers, pattern=f"^{PEERS}$"),
-                CallbackQueryHandler(totals, pattern=f"^{TOTALS}$")
+                CallbackQueryHandler(totals, pattern=f"^{TOTALS}$"),
+                CallbackQueryHandler(leaver_status, pattern=f"^{LEAVER_STATUS}$")
             ]
         },
         fallbacks=[]
