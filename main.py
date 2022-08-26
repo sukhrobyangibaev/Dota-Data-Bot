@@ -141,6 +141,18 @@ def matches_to_str(res_json) -> str:
     return text
 
 
+def hero_stats(res_json) -> str:
+    text = ""
+    for i in range(10):
+        hero = res_json[i]
+        games = hero["games"]
+        wins = hero["win"]
+        winrate = int((wins * 100) / games)
+        text += str(i + 1) + ". " + heroes_col.find_one({"id": int(hero["hero_id"])}).get("localized_name")
+        text += ", games: " + str(games) + ", winrate: " + str(winrate) + "%\n"
+    return text
+
+
 kda_obj = {
     SORT_BY_KILLS: "kills",
     SORT_BY_DEATHS: "deaths",
@@ -474,6 +486,22 @@ async def sort_by_hero(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     return SORT_BY_HERO
 
 
+# MAIN MENU -> PLAYERS MENU -> HEROES -----------------------------------------------------------------------
+async def player_heroes_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.callback_query.answer()
+
+    account_id = context.user_data.get(ACCOUNT_ID)
+    response = requests.get(f"https://api.opendota.com/api/players/{account_id}/heroes",
+                            params={"sort": "games"})
+    res_json = response.json()
+    text = hero_stats(res_json)
+    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
+    keyboard = InlineKeyboardMarkup.from_button(button)
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+    return PLAYER_HEROES
+
+
 def main() -> None:
     app = Application.builder().token("5581179119:AAFd8Da6TQdmTwtGqdn-3QQp2vcsSDnDEms").build()
 
@@ -508,13 +536,17 @@ def main() -> None:
                 CallbackQueryHandler(player_matches, pattern=f"^{BACK_TO_PLAYERS_MATCHES}$"),
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
             ],
+            PLAYER_HEROES: [
+                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+            ],
             PLAYERS: [
                 CallbackQueryHandler(type_account_id, pattern=f"^{WRITE_ANOTHER_ID}$"),
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$"),
                 CallbackQueryHandler(start, pattern=f"^{MAIN_MENU}$"),
                 CallbackQueryHandler(wl, pattern=f"^{WL}$"),
                 CallbackQueryHandler(recent_matches, pattern=f"^{RECENT_MATCHES}$"),
-                CallbackQueryHandler(player_matches, pattern=f"^{PLAYER_MATCHES}$")
+                CallbackQueryHandler(player_matches, pattern=f"^{PLAYER_MATCHES}$"),
+                CallbackQueryHandler(player_heroes_stats, pattern=f"^{PLAYER_HEROES}$")
             ]
         },
         fallbacks=[]
