@@ -153,7 +153,7 @@ wl_obj = {
 }
 
 
-# START --------------------------------------------------------------------------------------
+# MAIN MENU -----------------------------------------------------------------------------------------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     buttons = [
         [
@@ -211,7 +211,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return MAIN_MENU
 
 
-# MATCHES --------------------------------------------------------------------------------------
+# MAIN MENU -> MATCHES ------------------------------------------------------------------------------------
 async def matches(update: Update, _) -> int:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text="write match id")
@@ -250,7 +250,7 @@ async def get_match_id(update: Update, _) -> int:
     return MATCHES
 
 
-# PLAYERS --------------------------------------------------------------------------------------
+# MAIN MENU -> PLAYERS MENU --------------------------------------------------------------------------------
 async def check_account_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if ACCOUNT_ID in context.user_data:
         return await player_menu(update, context)
@@ -324,7 +324,7 @@ async def player_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     return PLAYERS
 
 
-# PLAYERS WL ----------------------------------------------------------------------------------
+# MAIN MENU -> PLAYERS MENU -> PLAYERS WL -------------------------------------------------------------------
 async def wl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
     keyboard = InlineKeyboardMarkup.from_button(button)
@@ -341,7 +341,7 @@ async def wl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return WL
 
 
-# PLAYERS RECENT_MATCHES --------------------------------------------------------------------------------
+# MAIN MENU -> PLAYERS MENU -> RECENT_MATCHES --------------------------------------------------------------
 async def recent_matches(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.callback_query.answer()
     account_id = context.user_data.get(ACCOUNT_ID)
@@ -356,7 +356,7 @@ async def recent_matches(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return RECENT_MATCHES
 
 
-# PLAYERS MATCHES --------------------------------------------------------------------------------
+# MAIN MENU -> PLAYERS MENU -> PLAYERS MATCHES -------------------------------------------------------------
 async def player_matches(update: Update, _) -> int:
     await update.callback_query.answer()
     text = "Sort by..."
@@ -377,6 +377,7 @@ async def player_matches(update: Update, _) -> int:
     return PLAYER_MATCHES
 
 
+# MAIN MENU -> PLAYERS MENU -> PLAYERS MATCHES -> SORT BY KDA ---------------------------------------------
 async def sort_by_kda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.callback_query.answer()
 
@@ -394,6 +395,7 @@ async def sort_by_kda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     return PLAYER_MATCHES
 
 
+# MAIN MENU -> PLAYERS MENU -> PLAYERS MATCHES -> SORT BY WL ---------------------------------------------
 async def sort_by_wl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.callback_query.answer()
     int_wl = wl_obj[int(update.callback_query.data)]
@@ -410,6 +412,7 @@ async def sort_by_wl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return PLAYER_MATCHES
 
 
+# MAIN MENU -> PLAYERS MENU -> PLAYERS MATCHES -> SORT BY HERO ---------------------------------------------
 async def choose_hero_to_sort(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.callback_query.answer()
 
