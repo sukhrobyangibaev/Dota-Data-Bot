@@ -368,7 +368,8 @@ async def wl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/wl")
     if response.status_code == 200:
         res_json = response.json()
-        text = "WIN: " + str(res_json["win"]) + "\nLOSE: " + str(res_json["lose"])
+        text = "Won: " + str(res_json["win"]) + "\nLost: " + str(res_json["lose"])
+        text += "\nWinrate: " + count_winrate(res_json["win"] + res_json["lose"], res_json["win"])
     else:
         text = "Error"
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
