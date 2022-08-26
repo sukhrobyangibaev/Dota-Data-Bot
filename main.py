@@ -166,6 +166,15 @@ def peers_to_text(res_json) -> str:
     return text
 
 
+def totals_to_text(res_json) -> str:
+    text = f"K/D/A - {res_json[0]['sum']}/{res_json[1]['sum']}/{res_json[2]['sum']}\n" \
+           f"Last hits - {res_json[6]['sum']}\n" \
+           f"Denies - {res_json[7]['sum']}\n" \
+           f"Hours played - {int(res_json[9]['sum'] / 3600)}\n" \
+           f"Courier kills - {res_json[17]['sum']}"
+    return text
+
+
 kda_obj = {
     SORT_BY_KILLS: "kills",
     SORT_BY_DEATHS: "deaths",
@@ -531,6 +540,21 @@ async def peers(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return PEERS
 
 
+# MAIN MENU -> PLAYERS MENU -> TOTALS -----------------------------------------------------------------------
+async def totals(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.callback_query.answer()
+
+    account_id = context.user_data.get(ACCOUNT_ID)
+    response = requests.get(f"https://api.opendota.com/api/players/{account_id}/totals")
+    res_json = response.json()
+    text = totals_to_text(res_json)
+    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
+    keyboard = InlineKeyboardMarkup.from_button(button)
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+    return TOTALS
+
+
 def main() -> None:
     app = Application.builder().token("5581179119:AAFd8Da6TQdmTwtGqdn-3QQp2vcsSDnDEms").build()
 
@@ -571,6 +595,9 @@ def main() -> None:
             PEERS: [
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
             ],
+            TOTALS: [
+                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+            ],
             PLAYERS: [
                 CallbackQueryHandler(type_account_id, pattern=f"^{WRITE_ANOTHER_ID}$"),
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$"),
@@ -579,7 +606,8 @@ def main() -> None:
                 CallbackQueryHandler(recent_matches, pattern=f"^{RECENT_MATCHES}$"),
                 CallbackQueryHandler(player_matches, pattern=f"^{PLAYER_MATCHES}$"),
                 CallbackQueryHandler(player_heroes_stats, pattern=f"^{PLAYER_HEROES}$"),
-                CallbackQueryHandler(peers, pattern=f"^{PEERS}$")
+                CallbackQueryHandler(peers, pattern=f"^{PEERS}$"),
+                CallbackQueryHandler(totals, pattern=f"^{TOTALS}$")
             ]
         },
         fallbacks=[]
