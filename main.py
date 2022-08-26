@@ -570,7 +570,7 @@ async def totals(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return TOTALS
 
 
-# MAIN MENU -> PLAYERS MENU -> TOTALS -----------------------------------------------------------------------
+# MAIN MENU -> PLAYERS MENU -> LEAVER_STATUS -----------------------------------------------------------------------
 async def leaver_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.callback_query.answer()
 
