@@ -225,6 +225,15 @@ def pro_players_to_text(players) -> str:
     return text
 
 
+def get_pro_matches(res_json) -> str:
+    text = ""
+    for match in res_json:
+        if match["league_id"] and not match["deactivate_time"]:
+            text += match["team_name_radiant"] + " " + str(match["radiant_score"])
+            text += " vs " + str(match["dire_score"]) + " " + match["team_name_dire"] + "\n"
+    return text
+
+
 kda_obj = {
     SORT_BY_KILLS: "kills",
     SORT_BY_DEATHS: "deaths",
@@ -246,34 +255,34 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             InlineKeyboardButton(text="PRO_PLAYER", callback_data=PRO_PLAYER)
         ],
         [
-            InlineKeyboardButton(text="PRO_MATCHES", callback_data=PRO_MATCHES),
-            InlineKeyboardButton(text="PUBLIC_MATCHES", callback_data=PUBLIC_MATCHES),
-            InlineKeyboardButton(text="PARSED_MATCHES", callback_data=PARSED_MATCHES)
+            # InlineKeyboardButton(text="PRO_MATCHES", callback_data=PRO_MATCHES),
+            # InlineKeyboardButton(text="PUBLIC_MATCHES", callback_data=PUBLIC_MATCHES),
+            # InlineKeyboardButton(text="PARSED_MATCHES", callback_data=PARSED_MATCHES)
         ],
         [
-            InlineKeyboardButton(text="EXPLORER", callback_data=EXPLORER),
-            InlineKeyboardButton(text="METADATA", callback_data=METADATA),
-            InlineKeyboardButton(text="SEARCH", callback_data=SEARCH)
+            # InlineKeyboardButton(text="EXPLORER", callback_data=EXPLORER),
+            # InlineKeyboardButton(text="METADATA", callback_data=METADATA),
+            # InlineKeyboardButton(text="SEARCH", callback_data=SEARCH)
         ],
         [
-            InlineKeyboardButton(text="RANKINGS", callback_data=RANKINGS),
-            InlineKeyboardButton(text="BENCHMARKS", callback_data=BENCHMARKS),
-            InlineKeyboardButton(text="STATUS", callback_data=STATUS)
+            # InlineKeyboardButton(text="RANKINGS", callback_data=RANKINGS),
+            # InlineKeyboardButton(text="BENCHMARKS", callback_data=BENCHMARKS),
+            # InlineKeyboardButton(text="STATUS", callback_data=STATUS)
         ],
         [
-            InlineKeyboardButton(text="HEALTH", callback_data=HEALTH),
-            InlineKeyboardButton(text="REQUEST", callback_data=REQUEST),
-            InlineKeyboardButton(text="FINDMATCHES", callback_data=FINDMATCHES)
+            # InlineKeyboardButton(text="HEALTH", callback_data=HEALTH),
+            # InlineKeyboardButton(text="REQUEST", callback_data=REQUEST),
+            # InlineKeyboardButton(text="FINDMATCHES", callback_data=FINDMATCHES)
         ],
         [
-            InlineKeyboardButton(text="HEROES", callback_data=HEROES),
-            InlineKeyboardButton(text="HERO_STAT", callback_data=HERO_STAT),
-            InlineKeyboardButton(text="LEAGUE", callback_data=LEAGUE)
+            # InlineKeyboardButton(text="HEROES", callback_data=HEROES),
+            # InlineKeyboardButton(text="HERO_STAT", callback_data=HERO_STAT),
+            # InlineKeyboardButton(text="LEAGUE", callback_data=LEAGUE)
         ],
         [
-            InlineKeyboardButton(text="TEAMS", callback_data=TEAMS),
-            InlineKeyboardButton(text="REPLAYS", callback_data=REPLAYS),
-            InlineKeyboardButton(text="RECORDS", callback_data=RECORDS)
+            # InlineKeyboardButton(text="TEAMS", callback_data=TEAMS),
+            # InlineKeyboardButton(text="REPLAYS", callback_data=REPLAYS),
+            # InlineKeyboardButton(text="RECORDS", callback_data=RECORDS)
         ],
         [
             InlineKeyboardButton(text="LIVE", callback_data=LIVE),
@@ -683,6 +692,19 @@ async def get_pro_player_name(update: Update, _) -> int:
     return PRO_PLAYER
 
 
+# MAIN MENU -> LIVE -----------------------------------------------------------------------
+async def live(update: Update, _) -> int:
+    await update.callback_query.answer()
+    response = requests.get(f"https://api.opendota.com/api/live")
+    res_json = response.json()
+    text = get_pro_matches(res_json)
+    button = InlineKeyboardButton(text="MAIN MENU", callback_data=MAIN_MENU)
+    keyboard = InlineKeyboardMarkup.from_button(button)
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+    return LIVE
+
+
 def main() -> None:
     app = Application.builder().token("5581179119:AAFd8Da6TQdmTwtGqdn-3QQp2vcsSDnDEms").build()
 
@@ -692,7 +714,8 @@ def main() -> None:
             MAIN_MENU: [
                 CallbackQueryHandler(matches, pattern=f"^{MATCHES}$"),
                 CallbackQueryHandler(check_account_id, pattern=f"^{PLAYERS}$"),
-                CallbackQueryHandler(type_pro_player, pattern=f"^{PRO_PLAYER}$")
+                CallbackQueryHandler(type_pro_player, pattern=f"^{PRO_PLAYER}$"),
+                CallbackQueryHandler(live, pattern=f"^{LIVE}$")
             ],
             TYPING_MATCH_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_match_id)],
             TYPE_PRO_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_pro_player_name)],
@@ -702,6 +725,9 @@ def main() -> None:
             ],
             PRO_PLAYER: [
                 CallbackQueryHandler(type_pro_player, pattern=f"^{WRITE_OTHER_PLAYER}$"),
+                CallbackQueryHandler(start, pattern=f"^{MAIN_MENU}$")
+            ],
+            LIVE: [
                 CallbackQueryHandler(start, pattern=f"^{MAIN_MENU}$")
             ],
             TYPE_ACCOUNT_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_account_id)],
