@@ -250,56 +250,21 @@ wl_obj = {
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     buttons = [
         [
-            InlineKeyboardButton(text="MATCHES", callback_data=MATCHES),
-            InlineKeyboardButton(text="PALYERS", callback_data=PLAYERS),
-            InlineKeyboardButton(text="PRO_PLAYER", callback_data=PRO_PLAYER)
+            InlineKeyboardButton(text="🔍 SEARCH MATCHES", callback_data=MATCHES),
+            InlineKeyboardButton(text="🔍 SEARCH PRO PLAYERS", callback_data=PRO_PLAYER)
         ],
         [
-            # InlineKeyboardButton(text="PRO_MATCHES", callback_data=PRO_MATCHES),
-            # InlineKeyboardButton(text="PUBLIC_MATCHES", callback_data=PUBLIC_MATCHES),
-            # InlineKeyboardButton(text="PARSED_MATCHES", callback_data=PARSED_MATCHES)
-        ],
-        [
-            # InlineKeyboardButton(text="EXPLORER", callback_data=EXPLORER),
-            # InlineKeyboardButton(text="METADATA", callback_data=METADATA),
-            # InlineKeyboardButton(text="SEARCH", callback_data=SEARCH)
-        ],
-        [
-            # InlineKeyboardButton(text="RANKINGS", callback_data=RANKINGS),
-            # InlineKeyboardButton(text="BENCHMARKS", callback_data=BENCHMARKS),
-            # InlineKeyboardButton(text="STATUS", callback_data=STATUS)
-        ],
-        [
-            # InlineKeyboardButton(text="HEALTH", callback_data=HEALTH),
-            # InlineKeyboardButton(text="REQUEST", callback_data=REQUEST),
-            # InlineKeyboardButton(text="FINDMATCHES", callback_data=FINDMATCHES)
-        ],
-        [
-            # InlineKeyboardButton(text="HEROES", callback_data=HEROES),
-            # InlineKeyboardButton(text="HERO_STAT", callback_data=HERO_STAT),
-            # InlineKeyboardButton(text="LEAGUE", callback_data=LEAGUE)
-        ],
-        [
-            # InlineKeyboardButton(text="TEAMS", callback_data=TEAMS),
-            # InlineKeyboardButton(text="REPLAYS", callback_data=REPLAYS),
-            # InlineKeyboardButton(text="RECORDS", callback_data=RECORDS)
-        ],
-        [
-            InlineKeyboardButton(text="LIVE", callback_data=LIVE),
-            InlineKeyboardButton(text="SCENARIOS", callback_data=SCENARIOS),
-            InlineKeyboardButton(text="SCHEMA", callback_data=SCHEMA)
-        ],
-        [
-            InlineKeyboardButton(text="CONSTANTS", callback_data=CONSTANTS)
+            InlineKeyboardButton(text="📈 PLAYER'S STATS", callback_data=PLAYERS),
+            InlineKeyboardButton(text="🔴 LIVE MATCHES", callback_data=LIVE),
         ]
     ]
     keyboard = InlineKeyboardMarkup(buttons)
 
     if context.user_data.get(FROM_CALLBACK_QUERY):
         await update.callback_query.answer()
-        await update.callback_query.edit_message_text(text="Choose category", reply_markup=keyboard)
+        await update.callback_query.edit_message_text(text="MAIN MENU", reply_markup=keyboard)
     else:
-        await update.message.reply_text(text="Choose category", reply_markup=keyboard)
+        await update.message.reply_text(text="MAIN MENU", reply_markup=keyboard)
         context.user_data[FROM_CALLBACK_QUERY] = True
     return MAIN_MENU
 
@@ -307,7 +272,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 # MAIN MENU -> MATCHES ------------------------------------------------------------------------------------
 async def matches(update: Update, _) -> int:
     await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text="write match id (e.g. 6720147701)")
+    await update.callback_query.edit_message_text(text="✍ write match id (e.g. 6720147701)")
     return TYPING_MATCH_ID
 
 
@@ -359,7 +324,7 @@ async def check_account_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 async def type_account_id(update: Update, _) -> int:
     await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text="write player's id")
+    await update.callback_query.edit_message_text(text="✍ write player's id")
 
     return TYPE_ACCOUNT_ID
 
@@ -399,9 +364,9 @@ async def player_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     search_buttons = [[
         InlineKeyboardButton(text="WIN/LOSE", callback_data=WL),
         InlineKeyboardButton(text="RECENT MATCHES", callback_data=RECENT_MATCHES),
-        InlineKeyboardButton(text="MATCHES", callback_data=PLAYER_MATCHES)
+        InlineKeyboardButton(text="SORTED MATCHES", callback_data=PLAYER_MATCHES)
     ], [
-        InlineKeyboardButton(text="HEROES", callback_data=PLAYER_HEROES),
+        InlineKeyboardButton(text="MOST PICKED HEROES", callback_data=PLAYER_HEROES),
         InlineKeyboardButton(text="PEERS", callback_data=PEERS),
         InlineKeyboardButton(text="TOTALS", callback_data=TOTALS)
     ], [
@@ -667,7 +632,7 @@ async def refresh(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 # MAIN MENU -> PRO_PLAYER -----------------------------------------------------------------------
 async def type_pro_player(update: Update, _) -> int:
     await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text="type player's name (e.g. ammar)")
+    await update.callback_query.edit_message_text(text="✍ write player's name (e.g. ammar)")
 
     return TYPE_PRO_PLAYER
 
@@ -698,6 +663,8 @@ async def live(update: Update, _) -> int:
     response = requests.get(f"https://api.opendota.com/api/live")
     res_json = response.json()
     text = get_pro_matches(res_json)
+    if not text:
+        text = "no live matches"
     button = InlineKeyboardButton(text="MAIN MENU", callback_data=MAIN_MENU)
     keyboard = InlineKeyboardMarkup.from_button(button)
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
