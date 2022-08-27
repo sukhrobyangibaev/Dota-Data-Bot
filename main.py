@@ -274,7 +274,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 # MAIN MENU -> MATCHES ------------------------------------------------------------------------------------
 async def matches(update: Update, _) -> int:
     await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text="write match id")
+    await update.callback_query.edit_message_text(text="write match id (e.g. 6720147701)")
     return TYPING_MATCH_ID
 
 
@@ -289,12 +289,18 @@ async def get_match_id(update: Update, _) -> int:
     keyboard = InlineKeyboardMarkup(buttons)
 
     response = requests.get(f"https://api.opendota.com/api/matches/{match_id}")
-    if response.status_code == 200 and "radiant_team" in response.json():
+    if response.status_code == 200:
         res_json = response.json()
-        teams = {
-            "radiant": res_json["radiant_team"]["name"],
-            "dire": res_json["dire_team"]["name"]
-        }
+        if "radiant_team" in response.json():
+            teams = {
+                "radiant": res_json["radiant_team"]["name"],
+                "dire": res_json["dire_team"]["name"]
+            }
+        else:
+            teams = {
+                "radiant": "Radiant",
+                "dire": "Dire"
+            }
         text = teams["radiant"] + " vs " + teams["dire"]
         text += "\nVictory: " + teams[who_won(res_json["radiant_win"])]
         text += "\nKills: " + teams["radiant"] + " " + str(res_json["radiant_score"]) + ":" \
