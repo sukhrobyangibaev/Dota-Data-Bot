@@ -1,5 +1,5 @@
 import logging
-
+import os
 import requests
 import pymongo
 
@@ -674,7 +674,7 @@ async def live(update: Update, _) -> int:
 
 
 def main() -> None:
-    app = Application.builder().token("5581179119:AAFd8Da6TQdmTwtGqdn-3QQp2vcsSDnDEms").build()
+    app = Application.builder().token(os.environ['TOKEN']).build()
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
@@ -754,7 +754,8 @@ def main() -> None:
     )
     app.add_handler(conv_handler)
 
-    # mongodb_pro_players_init()
+    mongodb_heroes_init()
+    mongodb_pro_players_init()
 
     app.run_polling()
 
