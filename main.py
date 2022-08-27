@@ -1,4 +1,6 @@
 import logging
+import re
+
 import requests
 import pymongo
 
@@ -79,16 +81,19 @@ logger = logging.getLogger(__name__)
     NEXT_HERO_LIST,
     SKIP_HEROES,
     BACK_TO_HERO_LIST,
-    PLAYER_NAME
-) = range(60)
+    PLAYER_NAME,
+    TYPE_PRO_PLAYER,
+    WRITE_OTHER_PLAYER
+) = range(62)
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["opendotabot"]
 heroes_col = mydb["heroes"]
+pro_players_col = mydb["proplayers"]
 
 
 # HELPERS --------------------------------------------------------------------------------------
-def mongodb_init() -> None:
+def mongodb_heroes_init() -> None:
     list_of_cols = mydb.list_collection_names()
     if "heroes" not in list_of_cols:
         response = requests.get("https://api.opendota.com/api/heroes")
@@ -96,6 +101,14 @@ def mongodb_init() -> None:
         for hero in res_json:
             heroes_col.insert_one(hero)
         logger.info("added heroes to db")
+
+
+def mongodb_pro_players_init() -> None:
+    response = requests.get("https://api.opendota.com/api/proPlayers")
+    res_json = response.json()
+    for player in res_json:
+        pro_players_col.insert_one(player)
+    logger.info("added pro players to db")
 
 
 def seconds_to_minutes(duration) -> str:
@@ -198,6 +211,17 @@ def wordcloud_to_text(res_json) -> str:
         text += word + " - " + str(num) + "\n"
         if counter == 10:
             break
+    return text
+
+
+def pro_players_to_text(players) -> str:
+    text = ""
+    for player in players:
+        text += "\n\nname: " + player["name"]
+        if player["team_name"]:
+            text += "\nteam: " + player["team_name"]
+        if player["country_code"]:
+            text += "\ncountry code: " + player["country_code"]
     return text
 
 
@@ -631,6 +655,34 @@ async def refresh(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return REFRESH
 
 
+# MAIN MENU -> PRO_PLAYER -----------------------------------------------------------------------
+async def type_pro_player(update: Update, _) -> int:
+    await update.callback_query.answer()
+    await update.callback_query.edit_message_text(text="type player's name (e.g. ammar)")
+
+    return TYPE_PRO_PLAYER
+
+
+async def get_pro_player_name(update: Update, _) -> int:
+    player_name = update.message.text
+    buttons = [
+        [
+            InlineKeyboardButton(text="WRITE OTHER PLAYER", callback_data=WRITE_OTHER_PLAYER),
+            InlineKeyboardButton(text="MAIN MENU", callback_data=MAIN_MENU)
+        ]
+    ]
+    keyboard = InlineKeyboardMarkup(buttons)
+
+    found_players = pro_players_col.find({"name": {"$regex": "^(?i)" + player_name}}).limit(10)
+    text = pro_players_to_text(found_players)
+    if len(text) == 0:
+        text += "player not found"
+
+    await update.message.reply_text(text=text, reply_markup=keyboard)
+
+    return PRO_PLAYER
+
+
 def main() -> None:
     app = Application.builder().token("5581179119:AAFd8Da6TQdmTwtGqdn-3QQp2vcsSDnDEms").build()
 
@@ -639,11 +691,17 @@ def main() -> None:
         states={
             MAIN_MENU: [
                 CallbackQueryHandler(matches, pattern=f"^{MATCHES}$"),
-                CallbackQueryHandler(check_account_id, pattern=f"^{PLAYERS}$")
+                CallbackQueryHandler(check_account_id, pattern=f"^{PLAYERS}$"),
+                CallbackQueryHandler(type_pro_player, pattern=f"^{PRO_PLAYER}$")
             ],
             TYPING_MATCH_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_match_id)],
+            TYPE_PRO_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_pro_player_name)],
             MATCHES: [
                 CallbackQueryHandler(matches, pattern=f"^{WRITE_ANOTHER_ID}$"),
+                CallbackQueryHandler(start, pattern=f"^{MAIN_MENU}$")
+            ],
+            PRO_PLAYER: [
+                CallbackQueryHandler(type_pro_player, pattern=f"^{WRITE_OTHER_PLAYER}$"),
                 CallbackQueryHandler(start, pattern=f"^{MAIN_MENU}$")
             ],
             TYPE_ACCOUNT_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_account_id)],
@@ -702,7 +760,7 @@ def main() -> None:
     )
     app.add_handler(conv_handler)
 
-    # mongodb_init()
+    # mongodb_pro_players_init()
 
     app.run_polling()
 
