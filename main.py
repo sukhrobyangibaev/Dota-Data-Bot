@@ -1,5 +1,4 @@
 import logging
-import re
 
 import requests
 import pymongo
@@ -104,11 +103,13 @@ def mongodb_heroes_init() -> None:
 
 
 def mongodb_pro_players_init() -> None:
-    response = requests.get("https://api.opendota.com/api/proPlayers")
-    res_json = response.json()
-    for player in res_json:
-        pro_players_col.insert_one(player)
-    logger.info("added pro players to db")
+    list_of_cols = mydb.list_collection_names()
+    if "proplayers" not in list_of_cols:
+        response = requests.get("https://api.opendota.com/api/proPlayers")
+        res_json = response.json()
+        for player in res_json:
+            pro_players_col.insert_one(player)
+        logger.info("added pro players to db")
 
 
 def seconds_to_minutes(duration) -> str:
