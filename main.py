@@ -367,14 +367,9 @@ async def player_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         InlineKeyboardButton(text="TOTALS", callback_data=TOTALS)
     ], [
         InlineKeyboardButton(text="LEAVER STATUS", callback_data=LEAVER_STATUS),
-        # InlineKeyboardButton(text="HISTOGRAMS", callback_data=HISTOGRAMS),
-        # InlineKeyboardButton(text="WARDMAP", callback_data=WARDMAP)
-    ], [
         InlineKeyboardButton(text="WORDCLOUD", callback_data=WORDCLOUD),
-        InlineKeyboardButton(text="RATINGS", callback_data=RATINGS),
-        InlineKeyboardButton(text="RANKINGS", callback_data=RANKINGS)
-    ], [
         InlineKeyboardButton(text="REFRESH", callback_data=REFRESH),
+    ], [
         InlineKeyboardButton(text="WRITE OTHER ID", callback_data=WRITE_ANOTHER_ID),
         InlineKeyboardButton(text="MAIN MENU", callback_data=MAIN_MENU)
     ]]
@@ -613,6 +608,23 @@ async def wordcloud(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return WORDCLOUD
 
 
+# MAIN MENU -> PLAYERS MENU -> REFRESH -----------------------------------------------------------------------
+async def refresh(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.callback_query.answer()
+
+    account_id = context.user_data.get(ACCOUNT_ID)
+    response = requests.post(f"https://api.opendota.com/api/players/{account_id}/refresh")
+    if response.status_code == 200:
+        text = "account refreshed"
+    else:
+        text = "wrong request"
+    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
+    keyboard = InlineKeyboardMarkup.from_button(button)
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+    return REFRESH
+
+
 def main() -> None:
     app = Application.builder().token("5581179119:AAFd8Da6TQdmTwtGqdn-3QQp2vcsSDnDEms").build()
 
@@ -662,6 +674,9 @@ def main() -> None:
             WORDCLOUD: [
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
             ],
+            REFRESH: [
+                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+            ],
             PLAYERS: [
                 CallbackQueryHandler(type_account_id, pattern=f"^{WRITE_ANOTHER_ID}$"),
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$"),
@@ -673,7 +688,8 @@ def main() -> None:
                 CallbackQueryHandler(peers, pattern=f"^{PEERS}$"),
                 CallbackQueryHandler(totals, pattern=f"^{TOTALS}$"),
                 CallbackQueryHandler(leaver_status, pattern=f"^{LEAVER_STATUS}$"),
-                CallbackQueryHandler(wordcloud, pattern=f"^{WORDCLOUD}$")
+                CallbackQueryHandler(wordcloud, pattern=f"^{WORDCLOUD}$"),
+                CallbackQueryHandler(refresh, pattern=f"^{REFRESH}$")
             ]
         },
         fallbacks=[]
