@@ -232,6 +232,8 @@ def pro_players_to_text(players) -> str:
             text += "\nteam: " + player["team_name"]
         if player["country_code"]:
             text += "\ncountry code: " + player["country_code"]
+        if player["account_id"]:
+            text += "\naccount id: " + str(player["account_id"])
     return text
 
 
