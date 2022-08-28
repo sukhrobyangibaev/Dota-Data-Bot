@@ -179,10 +179,14 @@ def hero_stats(res_json) -> str:
 
 def peers_to_text(res_json) -> str:
     text = ""
+    counter = 0
     for peer in res_json:
+        counter += 1
         games = peer["games"]
         winrate = count_winrate(games, peer["win"])
         text += peer["personaname"] + " - games " + str(games) + ", winrate " + winrate + "\n"
+        if counter == 10:
+            break
     return text
 
 
@@ -358,7 +362,7 @@ async def check_account_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 async def type_account_id(update: Update, _) -> int:
     await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text="✍ write player's id")
+    await update.callback_query.edit_message_text(text="✍ write player's id (e.g. 311360822)")
 
     return TYPE_ACCOUNT_ID
 
