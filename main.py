@@ -290,11 +290,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     buttons = [
         [
-            InlineKeyboardButton(text="🔍 SEARCH MATCHES", callback_data=MATCHES),
-            InlineKeyboardButton(text="🔍 SEARCH PRO PLAYERS", callback_data=PRO_PLAYER)
+            InlineKeyboardButton(text="🔍 SEARCH PRO PLAYERS", callback_data=PRO_PLAYER),
+            InlineKeyboardButton(text="📈 PLAYER'S STATS", callback_data=PLAYERS),
         ],
         [
-            InlineKeyboardButton(text="📈 PLAYER'S STATS", callback_data=PLAYERS),
+            InlineKeyboardButton(text="🔍 SEARCH MATCHES", callback_data=MATCHES),
             InlineKeyboardButton(text="🔴 LIVE MATCHES", callback_data=LIVE),
         ]
     ]
