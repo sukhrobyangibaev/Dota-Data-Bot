@@ -82,8 +82,9 @@ logger = logging.getLogger(__name__)
     BACK_TO_HERO_LIST,
     PLAYER_NAME,
     TYPE_PRO_PLAYER,
-    WRITE_OTHER_PLAYER
-) = range(62)
+    WRITE_OTHER_PLAYER,
+    UNKNOWN
+) = range(63)
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["opendotabot"]
@@ -273,6 +274,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         users_col.insert_one(user_dict)
         logger.info("added new user: " + str(user_dict))
 
+    context.user_data[FROM_CALLBACK_QUERY] = False
     return await main_menu(update, context)
 
 
@@ -701,8 +703,14 @@ async def live(update: Update, _) -> int:
 
     return LIVE
 
+
+# UNKNOWN COMMAND  -----------------------------------------------------------------------
+async def unknown(update: Update, _) -> int:
+    await update.message.reply_text(text="unknown command, please type /menu")
+    return UNKNOWN
+
+
 #todo add admin message func
-#todo fix live
 def main() -> None:
     app = Application.builder().token(os.environ['TOKEN']).build()
 
@@ -778,9 +786,15 @@ def main() -> None:
                 CallbackQueryHandler(leaver_status, pattern=f"^{LEAVER_STATUS}$"),
                 CallbackQueryHandler(wordcloud, pattern=f"^{WORDCLOUD}$"),
                 CallbackQueryHandler(refresh, pattern=f"^{REFRESH}$")
+            ],
+            UNKNOWN: [
+                CommandHandler("menu", start)
             ]
         },
-        fallbacks=[]
+        fallbacks=[
+            CommandHandler("menu", start),
+            MessageHandler(filters.TEXT, unknown)
+        ]
     )
     app.add_handler(conv_handler)
 
