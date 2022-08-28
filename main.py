@@ -83,8 +83,10 @@ logger = logging.getLogger(__name__)
     PLAYER_NAME,
     TYPE_PRO_PLAYER,
     WRITE_OTHER_PLAYER,
-    UNKNOWN
-) = range(63)
+    UNKNOWN,
+    ADMIN,
+    TYPE_ADMIN_MESSAGE
+) = range(65)
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["opendotabot"]
@@ -710,7 +712,32 @@ async def unknown(update: Update, _) -> int:
     return UNKNOWN
 
 
-#todo add admin message func
+# ADMIN  -------------------------------------------------------------------------------
+async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    logger.info("/admin command by user with id " + str(update.effective_user.id))
+    if str(update.effective_user.id) == os.environ['ADMIN_ID']:
+        await update.message.reply_text(text="welcome admin")
+        return await type_admin_message(update, context)
+    else:
+        await update.message.reply_text(text="sorry, you are not admin")
+        return await start(update, context)
+
+
+async def type_admin_message(update: Update, _) -> int:
+    await update.message.reply_text(text="✍ write admin message to all chats")
+    return TYPE_ADMIN_MESSAGE
+
+
+async def send_admin_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    text = update.message.text
+    all_chats = chats_col.find()
+    button = InlineKeyboardButton(text="GOT IT", callback_data=MAIN_MENU)
+    keyboard = InlineKeyboardMarkup.from_button(button)
+    for chat in all_chats:
+        await context.bot.sendMessage(chat_id=chat["id"], text=text, reply_markup=keyboard)
+    return ADMIN
+
+
 def main() -> None:
     app = Application.builder().token(os.environ['TOKEN']).build()
 
@@ -789,9 +816,16 @@ def main() -> None:
             ],
             UNKNOWN: [
                 CommandHandler("menu", start)
+            ],
+            TYPE_ADMIN_MESSAGE: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, send_admin_message)
+            ],
+            ADMIN: [
+                CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
             ]
         },
         fallbacks=[
+            CommandHandler("admin", admin),
             CommandHandler("menu", start),
             MessageHandler(filters.TEXT, unknown)
         ]
