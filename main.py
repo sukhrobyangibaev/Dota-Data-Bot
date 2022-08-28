@@ -89,6 +89,8 @@ myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["opendotabot"]
 heroes_col = mydb["heroes"]
 pro_players_col = mydb["proplayers"]
+users_col = mydb["users"]
+chats_col = mydb["chats"]
 
 
 # HELPERS --------------------------------------------------------------------------------------
@@ -247,8 +249,35 @@ wl_obj = {
 }
 
 
-# MAIN MENU -----------------------------------------------------------------------------------------------
+# START -----------------------------------------------------------------------------------------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    chat_found = chats_col.find_one({"id": update.message.chat.id})
+    if not chat_found:
+        chat = update.message.chat
+        chat_dict = {
+            "id": chat.id,
+            "type": chat.type,
+            "last_name": chat.last_name,
+            "first_name": chat.first_name
+        }
+        chats_col.insert_one(chat_dict)
+        logger.info("added new chat: " + str(chat_dict))
+        user = update.message.from_user
+        user_dict = {
+            "is_bot": user.is_bot,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "id": user.id,
+            "language_code": user.language_code
+        }
+        users_col.insert_one(user_dict)
+        logger.info("added new user: " + str(user_dict))
+
+    return await main_menu(update, context)
+
+
+# MAIN MENU -----------------------------------------------------------------------------------------------
+async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     buttons = [
         [
             InlineKeyboardButton(text="🔍 SEARCH MATCHES", callback_data=MATCHES),
@@ -672,7 +701,8 @@ async def live(update: Update, _) -> int:
 
     return LIVE
 
-
+#todo add admin message func
+#todo fix live
 def main() -> None:
     app = Application.builder().token(os.environ['TOKEN']).build()
 
@@ -689,14 +719,14 @@ def main() -> None:
             TYPE_PRO_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_pro_player_name)],
             MATCHES: [
                 CallbackQueryHandler(matches, pattern=f"^{WRITE_ANOTHER_ID}$"),
-                CallbackQueryHandler(start, pattern=f"^{MAIN_MENU}$")
+                CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
             ],
             PRO_PLAYER: [
                 CallbackQueryHandler(type_pro_player, pattern=f"^{WRITE_OTHER_PLAYER}$"),
-                CallbackQueryHandler(start, pattern=f"^{MAIN_MENU}$")
+                CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
             ],
             LIVE: [
-                CallbackQueryHandler(start, pattern=f"^{MAIN_MENU}$")
+                CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
             ],
             TYPE_ACCOUNT_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_account_id)],
             WL: [CallbackQueryHandler(check_account_id, pattern=f"^{BACK_TO_PLAYERS_MENU}$")],
@@ -738,7 +768,7 @@ def main() -> None:
             PLAYERS: [
                 CallbackQueryHandler(type_account_id, pattern=f"^{WRITE_ANOTHER_ID}$"),
                 CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$"),
-                CallbackQueryHandler(start, pattern=f"^{MAIN_MENU}$"),
+                CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$"),
                 CallbackQueryHandler(wl, pattern=f"^{WL}$"),
                 CallbackQueryHandler(recent_matches, pattern=f"^{RECENT_MATCHES}$"),
                 CallbackQueryHandler(player_matches, pattern=f"^{PLAYER_MATCHES}$"),
