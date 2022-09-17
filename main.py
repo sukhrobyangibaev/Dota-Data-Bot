@@ -3,7 +3,7 @@ import os
 import requests
 import pymongo
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from telegram.ext import (
     Application,
     CallbackQueryHandler,
@@ -289,23 +289,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 # MAIN MENU -----------------------------------------------------------------------------------------------
 async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     buttons = [
-        [
-            InlineKeyboardButton(text="🔍 SEARCH PRO PLAYERS", callback_data=PRO_PLAYER),
-            InlineKeyboardButton(text="📈 PLAYER'S STATS", callback_data=PLAYERS),
-        ],
-        [
-            InlineKeyboardButton(text="🔍 SEARCH MATCHES", callback_data=MATCHES),
-            InlineKeyboardButton(text="🔴 LIVE MATCHES", callback_data=LIVE),
-        ]
+        ["🔍 SEARCH PRO PLAYERS", "📈 PLAYER'S STATS"],
+        ["🔍 SEARCH MATCHES", "🔴 LIVE MATCHES"]
     ]
-    keyboard = InlineKeyboardMarkup(buttons)
+    keyboard = ReplyKeyboardMarkup(buttons)
 
-    if context.user_data.get(FROM_CALLBACK_QUERY):
-        await update.callback_query.answer()
-        await update.callback_query.edit_message_text(text="MAIN MENU", reply_markup=keyboard)
-    else:
-        await update.message.reply_text(text="MAIN MENU", reply_markup=keyboard)
-        context.user_data[FROM_CALLBACK_QUERY] = True
+    await update.message.reply_text(text="MAIN MENU", reply_markup=keyboard)
     return MAIN_MENU
 
 
@@ -699,15 +688,15 @@ async def get_pro_player_name(update: Update, _) -> int:
 
 # MAIN MENU -> LIVE -----------------------------------------------------------------------
 async def live(update: Update, _) -> int:
-    await update.callback_query.answer()
+    # await update.callback_query.answer()
     response = requests.get(f"https://api.opendota.com/api/live")
     res_json = response.json()
     text = get_pro_matches(res_json)
     if not text:
         text = "no live matches"
-    button = InlineKeyboardButton(text="MAIN MENU", callback_data=MAIN_MENU)
-    keyboard = InlineKeyboardMarkup.from_button(button)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    button = [["MAIN MENU"]]
+    keyboard = ReplyKeyboardMarkup(button)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return LIVE
 
@@ -754,7 +743,8 @@ def main() -> None:
                 CallbackQueryHandler(matches, pattern=f"^{MATCHES}$"),
                 CallbackQueryHandler(check_account_id, pattern=f"^{PLAYERS}$"),
                 CallbackQueryHandler(type_pro_player, pattern=f"^{PRO_PLAYER}$"),
-                CallbackQueryHandler(live, pattern=f"^{LIVE}$")
+                # CallbackQueryHandler(live, pattern=f"^{LIVE}$"),
+                MessageHandler(filters.Regex("^🔴 LIVE MATCHES$"), live)
             ],
             TYPING_MATCH_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_match_id)],
             TYPE_PRO_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_pro_player_name)],
@@ -766,9 +756,9 @@ def main() -> None:
                 CallbackQueryHandler(type_pro_player, pattern=f"^{WRITE_OTHER_PLAYER}$"),
                 CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
             ],
-            LIVE: [
-                CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
-            ],
+            # LIVE: [
+            #     CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
+            # ],
             TYPE_ACCOUNT_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_account_id)],
             WL: [CallbackQueryHandler(check_account_id, pattern=f"^{BACK_TO_PLAYERS_MENU}$")],
             RECENT_MATCHES: [CallbackQueryHandler(check_account_id, pattern=f"^{BACK_TO_PLAYERS_MENU}$")],
@@ -833,7 +823,8 @@ def main() -> None:
         fallbacks=[
             CommandHandler("admin", admin),
             CommandHandler("menu", start),
-            MessageHandler(filters.TEXT, unknown)
+            MessageHandler(filters.Regex("^🔴 LIVE MATCHES$"), live),
+            MessageHandler(filters.Regex("^MAIN MENU$"), main_menu)
         ]
     )
     app.add_handler(conv_handler)
