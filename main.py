@@ -3,7 +3,7 @@ import os
 import requests
 import pymongo
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
     Application,
     CallbackQueryHandler,
@@ -282,7 +282,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         users_col.insert_one(user_dict)
         logger.info("added new user: " + str(user_dict))
 
-    context.user_data[FROM_CALLBACK_QUERY] = False
     return await main_menu(update, context)
 
 
@@ -300,20 +299,15 @@ async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 # MAIN MENU -> MATCHES ------------------------------------------------------------------------------------
 async def matches(update: Update, _) -> int:
-    await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text="✍ write match id (e.g. 6720147701)")
+    await update.message.reply_text(text="✍ write match id (e.g. 6720147701)", reply_markup=ReplyKeyboardRemove())
+
     return TYPING_MATCH_ID
 
 
 async def get_match_id(update: Update, _) -> int:
     match_id = update.message.text
-    buttons = [
-        [
-            InlineKeyboardButton(text="WRITE OTHER ID", callback_data=WRITE_ANOTHER_ID),
-            InlineKeyboardButton(text="MAIN MENU", callback_data=MAIN_MENU)
-        ]
-    ]
-    keyboard = InlineKeyboardMarkup(buttons)
+    buttons = [["WRITE OTHER ID"], ["MAIN MENU"]]
+    keyboard = ReplyKeyboardMarkup(buttons)
 
     response = requests.get(f"https://api.opendota.com/api/matches/{match_id}")
     if response.status_code == 200:
@@ -660,21 +654,14 @@ async def refresh(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 # MAIN MENU -> PRO_PLAYER -----------------------------------------------------------------------
 async def type_pro_player(update: Update, _) -> int:
-    await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text="✍ write player's name (e.g. ammar)")
-
+    await update.message.reply_text(text="✍ write player's nickname (e.g. ammar)", reply_markup=ReplyKeyboardRemove())
     return TYPE_PRO_PLAYER
 
 
 async def get_pro_player_name(update: Update, _) -> int:
     player_name = update.message.text
-    buttons = [
-        [
-            InlineKeyboardButton(text="WRITE OTHER PLAYER", callback_data=WRITE_OTHER_PLAYER),
-            InlineKeyboardButton(text="MAIN MENU", callback_data=MAIN_MENU)
-        ]
-    ]
-    keyboard = InlineKeyboardMarkup(buttons)
+    buttons = [["WRITE OTHER PLAYER"], ["MAIN MENU"]]
+    keyboard = ReplyKeyboardMarkup(buttons)
 
     found_players = pro_players_col.find({"name": {"$regex": "^(?i)" + player_name}}).limit(10)
     text = pro_players_to_text(found_players)
@@ -740,25 +727,20 @@ def main() -> None:
         entry_points=[CommandHandler("start", start)],
         states={
             MAIN_MENU: [
-                CallbackQueryHandler(matches, pattern=f"^{MATCHES}$"),
+                MessageHandler(filters.Regex("^🔍 SEARCH MATCHES$"), matches),
                 CallbackQueryHandler(check_account_id, pattern=f"^{PLAYERS}$"),
-                CallbackQueryHandler(type_pro_player, pattern=f"^{PRO_PLAYER}$"),
-                # CallbackQueryHandler(live, pattern=f"^{LIVE}$"),
+                MessageHandler(filters.Regex("^🔍 SEARCH PRO PLAYERS$"), type_pro_player),
                 MessageHandler(filters.Regex("^🔴 LIVE MATCHES$"), live)
             ],
             TYPING_MATCH_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_match_id)],
             TYPE_PRO_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_pro_player_name)],
             MATCHES: [
-                CallbackQueryHandler(matches, pattern=f"^{WRITE_ANOTHER_ID}$"),
+                MessageHandler(filters.Regex("^WRITE OTHER ID$"), matches),
                 CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
             ],
             PRO_PLAYER: [
-                CallbackQueryHandler(type_pro_player, pattern=f"^{WRITE_OTHER_PLAYER}$"),
-                CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
+                MessageHandler(filters.Regex("^WRITE OTHER PLAYER$"), type_pro_player),
             ],
-            # LIVE: [
-            #     CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
-            # ],
             TYPE_ACCOUNT_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_account_id)],
             WL: [CallbackQueryHandler(check_account_id, pattern=f"^{BACK_TO_PLAYERS_MENU}$")],
             RECENT_MATCHES: [CallbackQueryHandler(check_account_id, pattern=f"^{BACK_TO_PLAYERS_MENU}$")],
