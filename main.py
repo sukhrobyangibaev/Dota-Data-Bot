@@ -3,10 +3,9 @@ import os
 import requests
 import pymongo
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
     Application,
-    CallbackQueryHandler,
     CommandHandler,
     ContextTypes,
     ConversationHandler,
@@ -286,7 +285,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 # MAIN MENU -----------------------------------------------------------------------------------------------
-async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def main_menu(update: Update, _) -> int:
     buttons = [
         ["🔍 SEARCH PRO PLAYERS", "📈 PLAYER'S STATS"],
         ["🔍 SEARCH MATCHES", "🔴 LIVE MATCHES"]
@@ -323,11 +322,15 @@ async def get_match_id(update: Update, _) -> int:
                 "dire": "Dire"
             }
         text = teams["radiant"] + " vs " + teams["dire"]
-        text += "\nVictory: " + teams[who_won(res_json["radiant_win"])]
-        text += "\nKills: " + teams["radiant"] + " " + str(res_json["radiant_score"]) + ":" \
+        if res_json["radiant_win"]:
+            text += "\nVictory: " + teams[who_won(res_json["radiant_win"])]
+        if res_json["radiant_score"]:
+            text += "\nKills: " + teams["radiant"] + " " + str(res_json["radiant_score"]) + ":" \
                 + str(res_json["dire_score"]) + " " + teams["radiant"]
-        text += "\nDuration of match: " + seconds_to_minutes(res_json["duration"])
-        text += "\n\nPicks:\n" + get_picks(teams, res_json["picks_bans"])
+        if res_json["duration"]:
+            text += "\nDuration of match: " + seconds_to_minutes(res_json["duration"])
+        if res_json["picks_bans"]:
+            text += "\n\nPicks:\n" + get_picks(teams, res_json["picks_bans"])
         await update.message.reply_text(text=text)
         await update.message.reply_text(text="choose option:", reply_markup=keyboard)
     else:
@@ -622,7 +625,6 @@ async def get_pro_player_name(update: Update, _) -> int:
 
 # MAIN MENU -> LIVE -----------------------------------------------------------------------
 async def live(update: Update, _) -> int:
-    # await update.callback_query.answer()
     response = requests.get(f"https://api.opendota.com/api/live")
     res_json = response.json()
     text = get_pro_matches(res_json)
@@ -637,7 +639,7 @@ async def live(update: Update, _) -> int:
 
 # UNKNOWN COMMAND  -----------------------------------------------------------------------
 async def unknown(update: Update, _) -> int:
-    await update.message.reply_text(text="unknown command, please type /menu")
+    await update.message.reply_text(text="unknown command, please type /menu", reply_markup=ReplyKeyboardRemove())
     return UNKNOWN
 
 
@@ -645,7 +647,7 @@ async def unknown(update: Update, _) -> int:
 async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     logger.info("/admin command by user with id " + str(update.effective_user.id))
     if str(update.effective_user.id) == os.environ['ADMIN_ID']:
-        await update.message.reply_text(text="welcome admin")
+        await update.message.reply_text(text="welcome admin", reply_markup=ReplyKeyboardRemove())
         return await type_admin_message(update, context)
     else:
         await update.message.reply_text(text="sorry, you are not admin")
@@ -678,6 +680,9 @@ def main() -> None:
                 MessageHandler(filters.Regex("^📈 PLAYER'S STATS$"), check_account_id),
                 MessageHandler(filters.Regex("^🔍 SEARCH PRO PLAYERS$"), type_pro_player),
                 MessageHandler(filters.Regex("^🔴 LIVE MATCHES$"), live)
+            ],
+            LIVE: [
+                MessageHandler(filters.Regex("^MAIN MENU$"), main_menu)
             ],
             TYPING_MATCH_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_match_id)],
             TYPE_PRO_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_pro_player_name)],
