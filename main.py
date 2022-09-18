@@ -247,14 +247,14 @@ def get_pro_matches(res_json) -> str:
 
 
 kda_obj = {
-    SORT_BY_KILLS: "kills",
-    SORT_BY_DEATHS: "deaths",
-    SORT_BY_ASSISTS: "assists"
+    "KILLS": "kills",
+    "DEATHS": "deaths",
+    "ASSISTS": "assists"
 }
 
 wl_obj = {
-    SORT_BY_WIN: 1,
-    SORT_BY_LOSE: 0
+    "WIN": 1,
+    "LOSE": 0
 }
 
 
@@ -346,8 +346,7 @@ async def check_account_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 
 async def type_account_id(update: Update, _) -> int:
-    await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text="✍ write player's id (e.g. 311360822)")
+    await update.message.reply_text(text="✍ write player's id (e.g. 311360822)", reply_markup=ReplyKeyboardRemove())
 
     return TYPE_ACCOUNT_ID
 
@@ -356,64 +355,41 @@ async def save_account_id(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     account_id = update.message.text
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}")
     if response.status_code == 200 and "profile" in response.json():
-        buttons = [
-            [
-                InlineKeyboardButton(text="WRITE OTHER ID", callback_data=WRITE_ANOTHER_ID),
-                InlineKeyboardButton(text="PLAYER'S MENU", callback_data=BACK_TO_PLAYERS_MENU),
-                InlineKeyboardButton(text="MAIN MENU", callback_data=MAIN_MENU),
-            ]
-        ]
-        keyboard = InlineKeyboardMarkup(buttons)
+        buttons = [["PLAYER'S MENU"], ["WRITE OTHER ID"], ["MAIN MENU"]]
 
         context.user_data[ACCOUNT_ID] = account_id
         res_json = response.json()
         context.user_data[PLAYER_NAME] = res_json["profile"]["personaname"]
         text = "Player's name: " + res_json["profile"]["personaname"]
-        await update.message.reply_text(text=text, reply_markup=keyboard)
-        return PLAYERS
     else:
-        buttons = [
-            [
-                InlineKeyboardButton(text="WRITE OTHER ID", callback_data=WRITE_ANOTHER_ID),
-                InlineKeyboardButton(text="MAIN MENU", callback_data=MAIN_MENU),
-            ]
-        ]
-        keyboard = InlineKeyboardMarkup(buttons)
-        await update.message.reply_text(text="wrong player's id", reply_markup=keyboard)
-        return PLAYERS
+        buttons = [["WRITE OTHER ID"], ["MAIN MENU"]]
+        text = "wrong player's id"
+
+    keyboard = ReplyKeyboardMarkup(buttons)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
+    return PLAYERS
 
 
 async def player_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    search_buttons = [[
-        InlineKeyboardButton(text="WIN/LOSE", callback_data=WL),
-        InlineKeyboardButton(text="RECENT MATCHES", callback_data=RECENT_MATCHES),
-        InlineKeyboardButton(text="SORTED MATCHES", callback_data=PLAYER_MATCHES)
-    ], [
-        InlineKeyboardButton(text="MOST PICKED HEROES", callback_data=PLAYER_HEROES),
-        InlineKeyboardButton(text="PEERS", callback_data=PEERS),
-        InlineKeyboardButton(text="TOTALS", callback_data=TOTALS)
-    ], [
-        InlineKeyboardButton(text="LEAVER STATUS", callback_data=LEAVER_STATUS),
-        InlineKeyboardButton(text="WORDCLOUD", callback_data=WORDCLOUD),
-        InlineKeyboardButton(text="REFRESH", callback_data=REFRESH),
-    ], [
-        InlineKeyboardButton(text="WRITE OTHER ID", callback_data=WRITE_ANOTHER_ID),
-        InlineKeyboardButton(text="MAIN MENU", callback_data=MAIN_MENU)
-    ]]
-    keyboard = InlineKeyboardMarkup(search_buttons)
+    search_buttons = [
+        ["WIN/LOSE", "RECENT MATCHES", "SORTED MATCHES"],
+        ["MOST PICKED HEROES", "PEERS", "TOTALS"],
+        ["LEAVER STATUS", "WORDCLOUD", "REFRESH"],
+        ["WRITE OTHER ID", "MAIN MENU"]
+    ]
+    keyboard = ReplyKeyboardMarkup(search_buttons)
     text = "account id: " + context.user_data[ACCOUNT_ID] + ", name: " + context.user_data[PLAYER_NAME]
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return PLAYERS
 
 
 # MAIN MENU -> PLAYERS MENU -> PLAYERS WL -------------------------------------------------------------------
 async def wl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
-    keyboard = InlineKeyboardMarkup.from_button(button)
+    button = [["BACK"]]
+    keyboard = ReplyKeyboardMarkup(button)
 
     account_id = context.user_data[ACCOUNT_ID]
-    await update.callback_query.answer()
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/wl")
     if response.status_code == 200:
         res_json = response.json()
@@ -421,85 +397,72 @@ async def wl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         text += "\nWinrate: " + count_winrate(res_json["win"] + res_json["lose"], res_json["win"])
     else:
         text = "Error"
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
     return WL
 
 
 # MAIN MENU -> PLAYERS MENU -> RECENT_MATCHES --------------------------------------------------------------
 async def recent_matches(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.callback_query.answer()
     account_id = context.user_data.get(ACCOUNT_ID)
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/recentMatches")
     res_json = response.json()
     text = matches_to_str(res_json)
 
-    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
-    keyboard = InlineKeyboardMarkup.from_button(button)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    button = [["BACK"]]
+    keyboard = ReplyKeyboardMarkup(button)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return RECENT_MATCHES
 
 
 # MAIN MENU -> PLAYERS MENU -> PLAYERS MATCHES -------------------------------------------------------------
 async def player_matches(update: Update, _) -> int:
-    await update.callback_query.answer()
     text = "Sort by..."
-    search_buttons = [[
-        InlineKeyboardButton(text="KILLS", callback_data=SORT_BY_KILLS),
-        InlineKeyboardButton(text="DEATHS", callback_data=SORT_BY_DEATHS),
-        InlineKeyboardButton(text="ASSISTS", callback_data=SORT_BY_ASSISTS)
-    ], [
-        InlineKeyboardButton(text="WIN", callback_data=SORT_BY_WIN),
-        InlineKeyboardButton(text="LOSE", callback_data=SORT_BY_LOSE),
-        InlineKeyboardButton(text="HERO", callback_data=SORT_BY_HERO),
-    ], [
-        InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
-    ]]
-    keyboard = InlineKeyboardMarkup(search_buttons)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    search_buttons = [
+        ["KILLS", "DEATHS", "ASSISTS"],
+        ["WIN", "LOSE", "HERO", ],
+        ["BACK TO PLAYER'S MENU"]
+    ]
+    keyboard = ReplyKeyboardMarkup(search_buttons)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return PLAYER_MATCHES
 
 
 # MAIN MENU -> PLAYERS MENU -> PLAYERS MATCHES -> SORT BY KDA ---------------------------------------------
 async def sort_by_kda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.callback_query.answer()
-
     account_id = context.user_data.get(ACCOUNT_ID)
-    sort = kda_obj[int(update.callback_query.data)]
+    sort = kda_obj[update.message.text]
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/matches",
                             params={"limit": 10, "sort": sort})
     res_json = response.json()
     text = matches_to_str(res_json)
 
-    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MATCHES)
-    keyboard = InlineKeyboardMarkup.from_button(button)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    button = [["BACK"]]
+    keyboard = ReplyKeyboardMarkup(button)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return PLAYER_MATCHES
 
 
 # MAIN MENU -> PLAYERS MENU -> PLAYERS MATCHES -> SORT BY WL ---------------------------------------------
 async def sort_by_wl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.callback_query.answer()
-    int_wl = wl_obj[int(update.callback_query.data)]
+    int_wl = wl_obj[update.message.text]
     account_id = context.user_data.get(ACCOUNT_ID)
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/matches",
                             params={"limit": 10, "win": int_wl})
     res_json = response.json()
     text = matches_to_str(res_json)
 
-    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MATCHES)
-    keyboard = InlineKeyboardMarkup.from_button(button)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    button = [["BACK"]]
+    keyboard = ReplyKeyboardMarkup(button)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return PLAYER_MATCHES
 
 
 # MAIN MENU -> PLAYERS MENU -> PLAYERS MATCHES -> SORT BY HERO ---------------------------------------------
 async def choose_hero_to_sort(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.callback_query.answer()
-
     if SKIP_HEROES not in context.user_data:
         context.user_data[SKIP_HEROES] = False
     if context.user_data[SKIP_HEROES]:
@@ -512,7 +475,7 @@ async def choose_hero_to_sort(update: Update, context: ContextTypes.DEFAULT_TYPE
     row = []
     counter = 0
     for hero in heroes:
-        row.append(InlineKeyboardButton(text=hero["localized_name"], callback_data=hero["id"]))
+        row.append(hero["localized_name"])
         counter += 1
         if counter == 4:
             buttons.append(row)
@@ -520,13 +483,10 @@ async def choose_hero_to_sort(update: Update, context: ContextTypes.DEFAULT_TYPE
             counter = 0
     buttons.append(row)
 
-    back_button = [
-        InlineKeyboardButton(text="NEXT LIST", callback_data="NEXT_HERO_LIST"),
-        InlineKeyboardButton(text="BACK", callback_data="BACK_TO_PLAYERS_MATCHES")
-    ]
+    back_button = ["NEXT LIST", "BACK TO SORT MENU"]
     buttons.append(back_button)
-    keyboard = InlineKeyboardMarkup(buttons)
-    await update.callback_query.edit_message_text(text="choose hero to sort", reply_markup=keyboard)
+    keyboard = ReplyKeyboardMarkup(buttons)
+    await update.message.reply_text(text="choose hero to sort", reply_markup=keyboard)
 
     return SORT_BY_HERO
 
@@ -540,9 +500,8 @@ async def next_hero_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 async def sort_by_hero(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.callback_query.answer()
-
-    hero_id = update.callback_query.data
+    hero = heroes_col.find_one({"localized_name": update.message.text})
+    hero_id = hero.get("id")
     account_id = context.user_data.get(ACCOUNT_ID)
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/matches",
                             params={"limit": 10, "hero_id": hero_id})
@@ -551,103 +510,91 @@ async def sort_by_hero(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         text = matches_to_str(res_json)
     else:
         text = "matches not found"
-    button = InlineKeyboardButton(text="BACK", callback_data="BACK_TO_HERO_LIST")
-    keyboard = InlineKeyboardMarkup.from_button(button)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    button = [["BACK"]]
+    keyboard = ReplyKeyboardMarkup(button)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return SORT_BY_HERO
 
 
 # MAIN MENU -> PLAYERS MENU -> HEROES -----------------------------------------------------------------------
 async def player_heroes_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.callback_query.answer()
-
     account_id = context.user_data.get(ACCOUNT_ID)
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/heroes",
                             params={"sort": "games"})
     res_json = response.json()
     text = hero_stats(res_json)
-    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
-    keyboard = InlineKeyboardMarkup.from_button(button)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    button = [["BACK"]]
+    keyboard = ReplyKeyboardMarkup(button)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return PLAYER_HEROES
 
 
 # MAIN MENU -> PLAYERS MENU -> PEERS -----------------------------------------------------------------------
 async def peers(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.callback_query.answer()
-
     account_id = context.user_data.get(ACCOUNT_ID)
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/peers",
                             params={"sort": "games"})
     res_json = response.json()
     text = peers_to_text(res_json)
-    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
-    keyboard = InlineKeyboardMarkup.from_button(button)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    button = [["BACK"]]
+    keyboard = ReplyKeyboardMarkup(button)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return PEERS
 
 
 # MAIN MENU -> PLAYERS MENU -> TOTALS -----------------------------------------------------------------------
 async def totals(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.callback_query.answer()
-
     account_id = context.user_data.get(ACCOUNT_ID)
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/totals")
     res_json = response.json()
     text = totals_to_text(res_json)
-    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
-    keyboard = InlineKeyboardMarkup.from_button(button)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    button = [["BACK"]]
+    keyboard = ReplyKeyboardMarkup(button)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return TOTALS
 
 
 # MAIN MENU -> PLAYERS MENU -> LEAVER_STATUS -----------------------------------------------------------------------
 async def leaver_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.callback_query.answer()
-
     account_id = context.user_data.get(ACCOUNT_ID)
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/counts")
     res_json = response.json()
     text = leaver_status_to_text(res_json)
-    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
-    keyboard = InlineKeyboardMarkup.from_button(button)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    button = [["BACK"]]
+    keyboard = ReplyKeyboardMarkup(button)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return LEAVER_STATUS
 
 
 # MAIN MENU -> PLAYERS MENU -> WORDCLOUD -----------------------------------------------------------------------
 async def wordcloud(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.callback_query.answer()
-
     account_id = context.user_data.get(ACCOUNT_ID)
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/wordcloud")
     res_json = response.json()
     text = wordcloud_to_text(res_json)
-    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
-    keyboard = InlineKeyboardMarkup.from_button(button)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    button = [["BACK"]]
+    keyboard = ReplyKeyboardMarkup(button)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return WORDCLOUD
 
 
 # MAIN MENU -> PLAYERS MENU -> REFRESH -----------------------------------------------------------------------
 async def refresh(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.callback_query.answer()
-
     account_id = context.user_data.get(ACCOUNT_ID)
     response = requests.post(f"https://api.opendota.com/api/players/{account_id}/refresh")
     if response.status_code == 200:
         text = "account refreshed"
     else:
         text = "wrong request"
-    button = InlineKeyboardButton(text="BACK", callback_data=BACK_TO_PLAYERS_MENU)
-    keyboard = InlineKeyboardMarkup.from_button(button)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    button = [["BACK"]]
+    keyboard = ReplyKeyboardMarkup(button)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
 
     return REFRESH
 
@@ -713,8 +660,8 @@ async def type_admin_message(update: Update, _) -> int:
 async def send_admin_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = update.message.text
     all_chats = chats_col.find()
-    button = InlineKeyboardButton(text="GOT IT", callback_data=MAIN_MENU)
-    keyboard = InlineKeyboardMarkup.from_button(button)
+    button = [["GOT IT"]]
+    keyboard = ReplyKeyboardMarkup(button)
     for chat in all_chats:
         await context.bot.sendMessage(chat_id=chat["id"], text=text, reply_markup=keyboard)
     return ADMIN
@@ -728,7 +675,7 @@ def main() -> None:
         states={
             MAIN_MENU: [
                 MessageHandler(filters.Regex("^🔍 SEARCH MATCHES$"), matches),
-                CallbackQueryHandler(check_account_id, pattern=f"^{PLAYERS}$"),
+                MessageHandler(filters.Regex("^📈 PLAYER'S STATS$"), check_account_id),
                 MessageHandler(filters.Regex("^🔍 SEARCH PRO PLAYERS$"), type_pro_player),
                 MessageHandler(filters.Regex("^🔴 LIVE MATCHES$"), live)
             ],
@@ -736,61 +683,61 @@ def main() -> None:
             TYPE_PRO_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_pro_player_name)],
             MATCHES: [
                 MessageHandler(filters.Regex("^WRITE OTHER ID$"), matches),
-                CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
             ],
             PRO_PLAYER: [
                 MessageHandler(filters.Regex("^WRITE OTHER PLAYER$"), type_pro_player),
             ],
             TYPE_ACCOUNT_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_account_id)],
-            WL: [CallbackQueryHandler(check_account_id, pattern=f"^{BACK_TO_PLAYERS_MENU}$")],
-            RECENT_MATCHES: [CallbackQueryHandler(check_account_id, pattern=f"^{BACK_TO_PLAYERS_MENU}$")],
+            WL: [MessageHandler(filters.Regex("^BACK$"), check_account_id)],
+            RECENT_MATCHES: [MessageHandler(filters.Regex("^BACK$"), check_account_id)],
             SORT_BY_HERO: [
-                CallbackQueryHandler(sort_by_hero, pattern="^[-+]?[0-9]+$"),
-                CallbackQueryHandler(next_hero_list, pattern=f"^NEXT_HERO_LIST$"),
-                CallbackQueryHandler(choose_hero_to_sort, pattern=f"^BACK_TO_HERO_LIST$"),
-                CallbackQueryHandler(player_matches, pattern=f"^BACK_TO_PLAYERS_MATCHES$")
+                MessageHandler(filters.Regex("^NEXT LIST$"), next_hero_list),
+                MessageHandler(filters.Regex("^BACK$"), choose_hero_to_sort),
+                MessageHandler(filters.Regex("^BACK TO SORT MENU$"), player_matches),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, sort_by_hero),
+
             ],
             PLAYER_MATCHES: [
-                CallbackQueryHandler(sort_by_kda, pattern=f"^{SORT_BY_KILLS}$"),
-                CallbackQueryHandler(sort_by_kda, pattern=f"^{SORT_BY_DEATHS}$"),
-                CallbackQueryHandler(sort_by_kda, pattern=f"^{SORT_BY_ASSISTS}$"),
-                CallbackQueryHandler(sort_by_wl, pattern=f"^{SORT_BY_WIN}$"),
-                CallbackQueryHandler(sort_by_wl, pattern=f"^{SORT_BY_LOSE}$"),
-                CallbackQueryHandler(choose_hero_to_sort, pattern=f"^{SORT_BY_HERO}$"),
-                CallbackQueryHandler(player_matches, pattern=f"^{BACK_TO_PLAYERS_MATCHES}$"),
-                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+                MessageHandler(filters.Regex("^KILLS$"), sort_by_kda),
+                MessageHandler(filters.Regex("^DEATHS$"), sort_by_kda),
+                MessageHandler(filters.Regex("^ASSISTS$"), sort_by_kda),
+                MessageHandler(filters.Regex("^WIN$"), sort_by_wl),
+                MessageHandler(filters.Regex("^LOSE$"), sort_by_wl),
+                MessageHandler(filters.Regex("^HERO$"), choose_hero_to_sort),
+                MessageHandler(filters.Regex("^BACK$"), player_matches),
+                MessageHandler(filters.Regex("^BACK TO PLAYER'S MENU$"), player_menu),
             ],
             PLAYER_HEROES: [
-                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+                MessageHandler(filters.Regex("^BACK$"), player_menu),
             ],
             PEERS: [
-                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+                MessageHandler(filters.Regex("^BACK$"), player_menu),
             ],
             TOTALS: [
-                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+                MessageHandler(filters.Regex("^BACK$"), player_menu),
             ],
             LEAVER_STATUS: [
-                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+                MessageHandler(filters.Regex("^BACK$"), player_menu),
             ],
             WORDCLOUD: [
-                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+                MessageHandler(filters.Regex("^BACK$"), player_menu),
             ],
             REFRESH: [
-                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$")
+                MessageHandler(filters.Regex("^BACK$"), player_menu),
             ],
             PLAYERS: [
-                CallbackQueryHandler(type_account_id, pattern=f"^{WRITE_ANOTHER_ID}$"),
-                CallbackQueryHandler(player_menu, pattern=f"^{BACK_TO_PLAYERS_MENU}$"),
-                CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$"),
-                CallbackQueryHandler(wl, pattern=f"^{WL}$"),
-                CallbackQueryHandler(recent_matches, pattern=f"^{RECENT_MATCHES}$"),
-                CallbackQueryHandler(player_matches, pattern=f"^{PLAYER_MATCHES}$"),
-                CallbackQueryHandler(player_heroes_stats, pattern=f"^{PLAYER_HEROES}$"),
-                CallbackQueryHandler(peers, pattern=f"^{PEERS}$"),
-                CallbackQueryHandler(totals, pattern=f"^{TOTALS}$"),
-                CallbackQueryHandler(leaver_status, pattern=f"^{LEAVER_STATUS}$"),
-                CallbackQueryHandler(wordcloud, pattern=f"^{WORDCLOUD}$"),
-                CallbackQueryHandler(refresh, pattern=f"^{REFRESH}$")
+                MessageHandler(filters.Regex("^WRITE OTHER ID$"), type_account_id),
+                MessageHandler(filters.Regex("^PLAYER'S MENU$"), player_menu),
+                MessageHandler(filters.Regex("^MAIN MENU$"), main_menu),
+                MessageHandler(filters.Regex("^WIN/LOSE$"), wl),
+                MessageHandler(filters.Regex("^RECENT MATCHES$"), recent_matches),
+                MessageHandler(filters.Regex("^SORTED MATCHES$"), player_matches),
+                MessageHandler(filters.Regex("^MOST PICKED HEROES$"), player_heroes_stats),
+                MessageHandler(filters.Regex("^PEERS$"), peers),
+                MessageHandler(filters.Regex("^TOTALS$"), totals),
+                MessageHandler(filters.Regex("^LEAVER STATUS$"), leaver_status),
+                MessageHandler(filters.Regex("^REFRESH$"), refresh),
+                MessageHandler(filters.Regex("^WORDCLOUD$"), wordcloud)
             ],
             UNKNOWN: [
                 CommandHandler("menu", start)
@@ -799,7 +746,7 @@ def main() -> None:
                 MessageHandler(filters.TEXT & ~filters.COMMAND, send_admin_message)
             ],
             ADMIN: [
-                CallbackQueryHandler(main_menu, pattern=f"^{MAIN_MENU}$")
+                MessageHandler(filters.Regex("^GOT IT$"), main_menu),
             ]
         },
         fallbacks=[
