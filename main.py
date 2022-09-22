@@ -13,46 +13,10 @@ from telegram.ext import (
 )
 
 from constants import *
+from main_menu.admin.admin import send_admin_message, admin
 from main_menu.live import live
-
-
-# START -----------------------------------------------------------------------------------------------
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    chat_found = chats_col.find_one({"id": update.message.chat.id})
-    if not chat_found:
-        chat = update.message.chat
-        chat_dict = {
-            "id": chat.id,
-            "type": chat.type,
-            "last_name": chat.last_name,
-            "first_name": chat.first_name
-        }
-        chats_col.insert_one(chat_dict)
-        logger.info("added new chat: " + str(chat_dict))
-        user = update.message.from_user
-        user_dict = {
-            "is_bot": user.is_bot,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "id": user.id,
-            "language_code": user.language_code
-        }
-        users_col.insert_one(user_dict)
-        logger.info("added new user: " + str(user_dict))
-
-    return await main_menu(update, context)
-
-
-# MAIN MENU -----------------------------------------------------------------------------------------------
-async def main_menu(update: Update, _) -> int:
-    buttons = [
-        ["🔍 SEARCH PRO PLAYERS", "📈 PLAYER'S STATS"],
-        ["🔍 SEARCH MATCHES", "🔴 LIVE MATCHES"]
-    ]
-    keyboard = ReplyKeyboardMarkup(buttons)
-
-    await update.message.reply_text(text="MAIN MENU", reply_markup=keyboard)
-    return MAIN_MENU
+from main_menu.main_menu import main_menu
+from main_menu.start import start
 
 
 # MAIN MENU -> MATCHES ------------------------------------------------------------------------------------
@@ -490,32 +454,6 @@ async def get_pro_player_name(update: Update, _) -> int:
 async def unknown(update: Update, _) -> int:
     await update.message.reply_text(text="unknown command, please type /menu", reply_markup=ReplyKeyboardRemove())
     return UNKNOWN
-
-
-# ADMIN  -------------------------------------------------------------------------------
-async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    logger.info("/admin command by user with id " + str(update.effective_user.id))
-    if str(update.effective_user.id) == os.environ['ADMIN_ID']:
-        await update.message.reply_text(text="welcome admin", reply_markup=ReplyKeyboardRemove())
-        return await type_admin_message(update, context)
-    else:
-        await update.message.reply_text(text="sorry, you are not admin")
-        return await start(update, context)
-
-
-async def type_admin_message(update: Update, _) -> int:
-    await update.message.reply_text(text="✍ write admin message to all chats")
-    return TYPE_ADMIN_MESSAGE
-
-
-async def send_admin_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    text = update.message.text
-    all_chats = chats_col.find()
-    button = [["GOT IT"]]
-    keyboard = ReplyKeyboardMarkup(button)
-    for chat in all_chats:
-        await context.bot.sendMessage(chat_id=chat["id"], text=text, reply_markup=keyboard)
-    return ADMIN
 
 
 def main() -> None:
