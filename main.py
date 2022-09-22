@@ -245,6 +245,26 @@ def get_pro_matches(res_json) -> str:
     return text
 
 
+def get_public_matches(res_json) -> str:
+    text = ""
+    is_pro_player = False
+    for match in res_json:
+        if not match["deactivate_time"]:
+            text += "<code>{}</code> Radiant {} : {} Dire\n".format(match["match_id"], match["radiant_score"],
+                                                                    match["dire_score"])
+            if match["players"]:
+                for player in match["players"]:
+                    if "is_pro" in player:
+                        is_pro_player = True
+                        text += "<code>{}</code> {} - {}\n".format(player["account_id"], player["name"],
+                                                                   get_hero_name(player["hero_id"]))
+            text += "\n"
+    if is_pro_player:
+        return text
+    else:
+        return ""
+
+
 kda_obj = {
     "KILLS": "kills",
     "DEATHS": "deaths",
@@ -326,7 +346,7 @@ async def get_match_id(update: Update, _) -> int:
             text += "\nVictory: " + teams[who_won(res_json["radiant_win"])]
         if res_json["radiant_score"]:
             text += "\nKills: " + teams["radiant"] + " " + str(res_json["radiant_score"]) + ":" \
-                + str(res_json["dire_score"]) + " " + teams["radiant"]
+                    + str(res_json["dire_score"]) + " " + teams["radiant"]
         if res_json["duration"]:
             text += "\nDuration of match: " + seconds_to_minutes(res_json["duration"])
         if res_json["picks_bans"]:
@@ -629,10 +649,18 @@ async def live(update: Update, _) -> int:
     res_json = response.json()
     text = get_pro_matches(res_json)
     if not text:
-        text = "no live matches"
+        text = "no pro matches\n\n"
+    text += get_public_matches(res_json)
+
     button = [["MAIN MENU"]]
     keyboard = ReplyKeyboardMarkup(button)
-    await update.message.reply_text(text=text, reply_markup=keyboard)
+
+    while len(text) > 4096:
+        last_pos = text[0:4096].rfind("\n\n")
+        await update.message.reply_html(text=text[0:last_pos])
+        text = text[last_pos:len(text)]
+
+    await update.message.reply_html(text=text, reply_markup=keyboard)
 
     return LIVE
 
