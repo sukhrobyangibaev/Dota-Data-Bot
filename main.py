@@ -2,7 +2,7 @@ import logging
 import os
 import requests
 import pymongo
-import helpers
+from helpers import helpers
 
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
