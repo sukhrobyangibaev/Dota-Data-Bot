@@ -16,6 +16,7 @@ from constants import *
 from main_menu import start, main_menu
 from main_menu.admin import send_admin_message, admin
 from main_menu.live import live
+from main_menu.pro_player import type_pro_player, get_pro_player_name
 
 
 # MAIN MENU -> MATCHES ------------------------------------------------------------------------------------
@@ -404,49 +405,6 @@ async def get_players_order(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         text = "order must be digit"
         await update.message.reply_text(text)
         return await type_delete_number(update, context)
-
-
-# MAIN MENU -> PRO_PLAYER -----------------------------------------------------------------------
-async def type_pro_player(update: Update, _) -> int:
-    await update.message.reply_text(text="✍ write player's nickname (e.g. ammar)", reply_markup=ReplyKeyboardRemove())
-    return TYPE_PRO_PLAYER
-
-
-async def get_pro_player_name(update: Update, _) -> int:
-    player_name = update.message.text
-    buttons = [["WRITE OTHER PLAYER"], ["MAIN MENU"]]
-    keyboard = ReplyKeyboardMarkup(buttons)
-
-    found_players = pro_players_col.find({"name": {"$regex": "^(?i)" + player_name}}).limit(10)
-    text = helpers.pro_players_to_text(found_players)
-    if len(text) == 0:
-        text += "player not found"
-
-    await update.message.reply_text(text=text, reply_markup=keyboard)
-
-    return PRO_PLAYER
-
-
-# MAIN MENU -> LIVE -----------------------------------------------------------------------
-# async def live(update: Update, _) -> int:
-#     response = requests.get(f"https://api.opendota.com/api/live")
-#     res_json = response.json()
-#     text = helpers.get_pro_matches(res_json)
-#     if not text:
-#         text = "no pro matches\n\n"
-#     text += helpers.get_public_matches(res_json)
-#
-#     button = [["MAIN MENU"]]
-#     keyboard = ReplyKeyboardMarkup(button)
-#
-#     while len(text) > 4096:
-#         last_pos = text[0:4096].rfind("\n\n")
-#         await update.message.reply_html(text=text[0:last_pos])
-#         text = text[last_pos:len(text)]
-#
-#     await update.message.reply_html(text=text, reply_markup=keyboard)
-#
-#     return LIVE
 
 
 # UNKNOWN COMMAND  -----------------------------------------------------------------------
