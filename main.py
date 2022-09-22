@@ -1,7 +1,5 @@
-import logging
 import os
 import requests
-import pymongo
 import helpers
 
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
