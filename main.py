@@ -84,8 +84,11 @@ logger = logging.getLogger(__name__)
     WRITE_OTHER_PLAYER,
     UNKNOWN,
     ADMIN,
-    TYPE_ADMIN_MESSAGE
-) = range(65)
+    TYPE_ADMIN_MESSAGE,
+    FAVOURITE_PLAYERS,
+    ADD_NEW_PLAYER,
+    DELETE_PLAYER
+) = range(68)
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["opendotabot"]
@@ -93,6 +96,7 @@ heroes_col = mydb["heroes"]
 pro_players_col = mydb["proplayers"]
 users_col = mydb["users"]
 chats_col = mydb["chats"]
+fav_players_col = mydb["fav_players"]
 
 
 # HELPERS --------------------------------------------------------------------------------------
@@ -139,7 +143,10 @@ def get_picks(teams, picks_bans) -> str:
 
 
 def get_hero_name(hero_id) -> str:
-    return heroes_col.find_one({"id": hero_id}).get("localized_name")
+    if hero_id:
+        return heroes_col.find_one({"id": hero_id}).get("localized_name")
+    else:
+        return "picking hero"
 
 
 def win_or_loose(player_slot, radiant_win) -> str:
@@ -398,7 +405,7 @@ async def player_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         ["WIN/LOSE", "RECENT MATCHES", "SORTED MATCHES"],
         ["MOST PICKED HEROES", "PEERS", "TOTALS"],
         ["LEAVER STATUS", "WORDCLOUD", "REFRESH"],
-        ["WRITE OTHER ID", "MAIN MENU"]
+        ["FAVOURITE PLAYERS", "WRITE OTHER ID", "MAIN MENU"]
     ]
     keyboard = ReplyKeyboardMarkup(search_buttons)
     text = "account id: " + context.user_data[ACCOUNT_ID] + ", name: " + context.user_data[PLAYER_NAME]
@@ -622,6 +629,88 @@ async def refresh(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return REFRESH
 
 
+# MAIN MENU -> PLAYERS MENU -> FAVOURITE PLAYERS --------------------------------------------------------------
+async def favourite_players(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    account_id = context.user_data.get(ACCOUNT_ID)
+    fav_players = fav_players_col.find_one({"account_id": account_id})
+    text = ""
+    if fav_players and fav_players["players"]:
+        for i, player in enumerate(fav_players["players"]):
+            text += "{}. {} {} \n".format(i + 1, player["id"], player["name"])
+    else:
+        text = "list is empty"
+
+    buttons = [["ADD NEW PLAYER"],
+               ["DELETE PLAYER"],
+               ["BACK"]]
+    keyboard = ReplyKeyboardMarkup(buttons)
+    await update.message.reply_text(text=text, reply_markup=keyboard)
+
+    return FAVOURITE_PLAYERS
+
+
+async def add_new_player(update: Update, _) -> int:
+    await update.message.reply_text(text="✍ write player's id and name (e.g. \"311360822 ana\")",
+                                    reply_markup=ReplyKeyboardRemove())
+    return ADD_NEW_PLAYER
+
+
+async def type_delete_number(update: Update, _) -> int:
+    await update.message.reply_text(text="✍ write player's order in list (e.g. \"1\" or \"2\")",
+                                    reply_markup=ReplyKeyboardRemove())
+    return DELETE_PLAYER
+
+
+async def get_new_player(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    try:
+        player_id, player_name = update.message.text.split()
+        account_id = context.user_data.get(ACCOUNT_ID)
+        fav_players = fav_players_col.find_one({"account_id": account_id})
+        if not fav_players:
+            fav_players_col.insert_one({
+                "account_id": account_id,
+                "players": [{
+                    "id": player_id,
+                    "name": player_name
+                }]
+            })
+        else:
+            fav_players["players"].append({
+                "id": player_id,
+                "name": player_name
+            })
+            fav_players_col.update_one({"_id": fav_players["_id"]}, {"$set": fav_players})
+        return await favourite_players(update, context)
+    except ValueError:
+        await update.message.reply_text("error, please check spelling")
+        return await add_new_player(update, context)
+
+
+async def get_players_order(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    order = update.message.text
+    account_id = context.user_data.get(ACCOUNT_ID)
+    print(order)
+    if order.isnumeric():
+        idx = int(order)
+        fav_players = fav_players_col.find_one({"account_id": account_id})
+        try:
+            del fav_players["players"][idx - 1]
+            fav_players_col.update_one({"_id": fav_players["_id"]}, {"$set": fav_players})
+            text = "player successfully deleted"
+            await update.message.reply_text(text)
+            return await favourite_players(update, context)
+        except TypeError:
+            text = "order must be integer"
+        except IndexError:
+            text = "order is out of range"
+        await update.message.reply_text(text)
+        return await type_delete_number(update, context)
+    else:
+        text = "order must be digit"
+        await update.message.reply_text(text)
+        return await type_delete_number(update, context)
+
+
 # MAIN MENU -> PRO_PLAYER -----------------------------------------------------------------------
 async def type_pro_player(update: Update, _) -> int:
     await update.message.reply_text(text="✍ write player's nickname (e.g. ammar)", reply_markup=ReplyKeyboardRemove())
@@ -714,6 +803,8 @@ def main() -> None:
             ],
             TYPING_MATCH_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_match_id)],
             TYPE_PRO_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_pro_player_name)],
+            ADD_NEW_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_new_player)],
+            DELETE_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_players_order)],
             MATCHES: [
                 MessageHandler(filters.Regex("^WRITE OTHER ID$"), matches),
             ],
@@ -758,6 +849,11 @@ def main() -> None:
             REFRESH: [
                 MessageHandler(filters.Regex("^BACK$"), player_menu),
             ],
+            FAVOURITE_PLAYERS: [
+                MessageHandler(filters.Regex("^ADD NEW PLAYER$"), add_new_player),
+                MessageHandler(filters.Regex("^DELETE PLAYER$"), type_delete_number),
+                MessageHandler(filters.Regex("^BACK$"), player_menu),
+            ],
             PLAYERS: [
                 MessageHandler(filters.Regex("^WRITE OTHER ID$"), type_account_id),
                 MessageHandler(filters.Regex("^PLAYER'S MENU$"), player_menu),
@@ -770,7 +866,8 @@ def main() -> None:
                 MessageHandler(filters.Regex("^TOTALS$"), totals),
                 MessageHandler(filters.Regex("^LEAVER STATUS$"), leaver_status),
                 MessageHandler(filters.Regex("^REFRESH$"), refresh),
-                MessageHandler(filters.Regex("^WORDCLOUD$"), wordcloud)
+                MessageHandler(filters.Regex("^WORDCLOUD$"), wordcloud),
+                MessageHandler(filters.Regex("^FAVOURITE PLAYERS"), favourite_players)
             ],
             UNKNOWN: [
                 CommandHandler("menu", start)
