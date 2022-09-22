@@ -13,10 +13,9 @@ from telegram.ext import (
 )
 
 from constants import *
-from main_menu.admin.admin import send_admin_message, admin
+from main_menu import start, main_menu
+from main_menu.admin import send_admin_message, admin
 from main_menu.live import live
-from main_menu.main_menu import main_menu
-from main_menu.start import start
 
 
 # MAIN MENU -> MATCHES ------------------------------------------------------------------------------------
