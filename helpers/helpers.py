@@ -1,5 +1,6 @@
-from main import logger, mydb, heroes_col, pro_players_col
 import requests
+
+from constants import heroes_col, mydb, logger, pro_players_col
 
 
 def mongodb_heroes_init() -> None:
