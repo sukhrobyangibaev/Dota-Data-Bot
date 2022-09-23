@@ -1,12 +1,12 @@
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes
 
-from constants import ACCOUNT_ID, fav_players_col, FAVOURITE_PLAYERS, ADD_NEW_PLAYER, DELETE_PLAYER
+from constants import fav_players_col, FAVOURITE_PLAYERS, ADD_NEW_PLAYER, DELETE_PLAYER
 
 
-async def favourite_players(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    account_id = context.user_data.get(ACCOUNT_ID)
-    fav_players = fav_players_col.find_one({"account_id": account_id})
+async def favourite_players(update: Update, _) -> int:
+    user_id = update.effective_user.id
+    fav_players = fav_players_col.find_one({"user_id": user_id})
     text = ""
     if fav_players and fav_players["players"]:
         for i, player in enumerate(fav_players["players"]):
@@ -38,19 +38,19 @@ async def type_delete_number(update: Update, _) -> int:
 async def get_new_player(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     try:
         player_id, player_name = update.message.text.split()
-        account_id = context.user_data.get(ACCOUNT_ID)
-        fav_players = fav_players_col.find_one({"account_id": account_id})
+        user_id = update.effective_user.id
+        fav_players = fav_players_col.find_one({"user_id": user_id})
         if not fav_players:
             fav_players_col.insert_one({
-                "account_id": account_id,
+                "user_id": user_id,
                 "players": [{
-                    "id": player_id,
+                    "id": int(player_id),
                     "name": player_name
                 }]
             })
         else:
             fav_players["players"].append({
-                "id": player_id,
+                "id": int(player_id),
                 "name": player_name
             })
             fav_players_col.update_one({"_id": fav_players["_id"]}, {"$set": fav_players})
@@ -62,11 +62,11 @@ async def get_new_player(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 async def get_players_order(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     order = update.message.text
-    account_id = context.user_data.get(ACCOUNT_ID)
+    user_id = update.effective_user.id
     print(order)
     if order.isnumeric():
         idx = int(order)
-        fav_players = fav_players_col.find_one({"account_id": account_id})
+        fav_players = fav_players_col.find_one({"user_id": user_id})
         try:
             del fav_players["players"][idx - 1]
             fav_players_col.update_one({"_id": fav_players["_id"]}, {"$set": fav_players})
