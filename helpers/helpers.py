@@ -1,3 +1,5 @@
+from itertools import islice
+
 import requests
 
 from constants import heroes_col, mydb, logger, pro_players_col
@@ -120,17 +122,11 @@ def leaver_status_to_text(res_json) -> str:
     return text
 
 
-def wordcloud_to_text(res_json) -> str:
+def get_wordcloud_list(res_json):
     words = res_json["my_word_counts"] | res_json["all_word_counts"]
     sorted_words = dict(sorted(words.items(), key=lambda item: item[1], reverse=True))
-    counter = 0
-    text = ""
-    for word, num in sorted_words.items():
-        counter += 1
-        text += word + " - " + str(num) + "\n"
-        if counter == 10:
-            break
-    return text
+
+    return dict(islice(sorted_words.items(), 10))
 
 
 def pro_players_to_text(players) -> str:
