@@ -5,8 +5,9 @@ from constants import MAIN_MENU, UNKNOWN
 
 async def main_menu(update: Update, _) -> int:
     buttons = [
-        ["🔍 SEARCH PRO PLAYERS", "📈 PLAYER'S STATS"],
-        ["🔍 SEARCH MATCHES", "🔴 LIVE MATCHES"]
+        ["🔍 SEARCH PRO PLAYERS", "🔍 SEARCH MATCHES"],
+        ["⭐ FAVOURITE PLAYERS", "📈 PLAYER'S STATS"],
+        ["🔴 LIVE MATCHES"]
     ]
     keyboard = ReplyKeyboardMarkup(buttons)
 

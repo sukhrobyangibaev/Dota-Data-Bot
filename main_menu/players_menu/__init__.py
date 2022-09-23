@@ -1,4 +1,3 @@
-from .fav_players import *
 from .heroes import *
 from .leaver_status import *
 from .peers import *

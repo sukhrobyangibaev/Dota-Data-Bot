@@ -12,11 +12,13 @@ from telegram.ext import (
 from constants import *
 from main_menu import start, main_menu
 from main_menu.admin import send_admin_message, admin
+from main_menu.fav_players import get_new_player, get_players_order, add_new_player, type_delete_number, \
+    favourite_players
 from main_menu.live import live
 from main_menu.matches import matches, get_match_id
-from main_menu.players_menu import check_account_id, get_new_player, get_players_order, save_account_id, player_menu, \
-    add_new_player, type_delete_number, type_account_id, wl, recent_matches, player_heroes_stats, peers, totals, \
-    leaver_status, refresh, wordcloud, favourite_players
+from main_menu.players_menu import check_account_id, save_account_id, player_menu, \
+    type_account_id, wl, recent_matches, player_heroes_stats, peers, totals, \
+    leaver_status, refresh, wordcloud
 from main_menu.players_menu.players_matches import next_hero_list, choose_hero_to_sort, player_matches, sort_by_hero, \
     sort_by_kda, sort_by_wl
 from main_menu.pro_player import type_pro_player, get_pro_player_name
@@ -32,6 +34,7 @@ def main() -> None:
                 MessageHandler(filters.Regex("^🔍 SEARCH MATCHES$"), matches),
                 MessageHandler(filters.Regex("^📈 PLAYER'S STATS$"), check_account_id),
                 MessageHandler(filters.Regex("^🔍 SEARCH PRO PLAYERS$"), type_pro_player),
+                MessageHandler(filters.Regex("^⭐ FAVOURITE PLAYERS$"), favourite_players),
                 MessageHandler(filters.Regex("^🔴 LIVE MATCHES$"), live)
             ],
             LIVE: [
@@ -88,7 +91,7 @@ def main() -> None:
             FAVOURITE_PLAYERS: [
                 MessageHandler(filters.Regex("^ADD NEW PLAYER$"), add_new_player),
                 MessageHandler(filters.Regex("^DELETE PLAYER$"), type_delete_number),
-                MessageHandler(filters.Regex("^BACK$"), player_menu),
+                MessageHandler(filters.Regex("^BACK$"), main_menu),
             ],
             PLAYERS: [
                 MessageHandler(filters.Regex("^WRITE OTHER ID$"), type_account_id),
@@ -102,8 +105,7 @@ def main() -> None:
                 MessageHandler(filters.Regex("^TOTALS$"), totals),
                 MessageHandler(filters.Regex("^LEAVER STATUS$"), leaver_status),
                 MessageHandler(filters.Regex("^REFRESH$"), refresh),
-                MessageHandler(filters.Regex("^WORDCLOUD$"), wordcloud),
-                MessageHandler(filters.Regex("^FAVOURITE PLAYERS"), favourite_players)
+                MessageHandler(filters.Regex("^WORDCLOUD$"), wordcloud)
             ],
             UNKNOWN: [
                 CommandHandler("menu", start)
