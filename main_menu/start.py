@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from constants import chats_col, logger, users_col
+from constants import chats_col, logger, users_col, USER_ID
 from main_menu.main_menu import main_menu
 
 
@@ -27,5 +27,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         }
         users_col.insert_one(user_dict)
         logger.info("added new user: " + str(user_dict))
+
+    context.user_data[USER_ID] = update.effective_user.id
 
     return await main_menu(update, context)
