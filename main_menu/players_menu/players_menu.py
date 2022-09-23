@@ -7,7 +7,14 @@ from helpers import helpers
 
 
 async def check_account_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    user_id = update.effective_user.id
+    fav_players = fav_players_col.find_one({"user_id": user_id})
     if ACCOUNT_ID in context.user_data:
+        return await player_menu(update, context)
+    elif fav_players and fav_players["players"]:
+        player = fav_players["players"][0]
+        context.user_data[ACCOUNT_ID] = str(player["id"])
+        context.user_data[PLAYER_NAME] = player["name"]
         return await player_menu(update, context)
     else:
         return await type_account_id(update, context)
