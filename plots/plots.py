@@ -8,11 +8,9 @@ def get_pie_plot(word_list):
     for key, value in word_list.items():
         words.append(key)
         counts.append(value)
-
-    fig, ax = plt.subplots()
-    ax.pie(counts, labels=words)
-
+    plt.pie(counts, labels=words)
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
+    plt.cla()
     return buf
