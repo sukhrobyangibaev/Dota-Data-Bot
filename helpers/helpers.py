@@ -142,7 +142,7 @@ def pro_players_to_text(players) -> str:
         if player["country_code"]:
             text += "\ncountry code: " + player["country_code"]
         if player["account_id"]:
-            text += "\naccount id: " + str(player["account_id"])
+            text += "\naccount id: <code>{}</code>".format(player["account_id"])
     return text
 
 

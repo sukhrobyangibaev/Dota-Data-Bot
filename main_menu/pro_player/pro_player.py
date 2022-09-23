@@ -19,6 +19,6 @@ async def get_pro_player_name(update: Update, _) -> int:
     if len(text) == 0:
         text += "player not found"
 
-    await update.message.reply_text(text=text, reply_markup=keyboard)
+    await update.message.reply_html(text=text, reply_markup=keyboard)
 
     return PRO_PLAYER
