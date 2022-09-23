@@ -8,7 +8,6 @@ from helpers import helpers
 async def live(update: Update, _) -> int:
     user_id = update.effective_user.id
     fav_players = fav_players_col.find_one({"user_id": user_id})
-    print(user_id, fav_players)
     response = requests.get(f"https://api.opendota.com/api/live")
     res_json = response.json()
 

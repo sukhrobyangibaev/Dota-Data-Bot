@@ -63,7 +63,6 @@ async def get_new_player(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 async def get_players_order(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     order = update.message.text
     user_id = update.effective_user.id
-    print(order)
     if order.isnumeric():
         idx = int(order)
         fav_players = fav_players_col.find_one({"user_id": user_id})
