@@ -56,11 +56,11 @@ def get_hero_name(hero_id) -> str:
 
 def win_or_loose(player_slot, radiant_win) -> str:
     if radiant_win and player_slot < 128:
-        return "WON"
+        return "🟩WON"
     elif not radiant_win and player_slot > 127:
-        return "WON"
+        return "🟩WON"
     else:
-        return "LOST"
+        return "🟥LOST"
 
 
 def matches_to_str(res_json) -> str:
