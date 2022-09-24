@@ -76,16 +76,25 @@ def count_winrate(games, wins) -> str:
     return str(int((wins * 100) / games)) + "%"
 
 
-def hero_stats(res_json) -> str:
-    text = ""
+def hero_stats(res_json):
+    heroes = []
+    games = []
+    won = []
+    won_percent = []
     for i in range(10):
         hero = res_json[i]
-        games = hero["games"]
-        wins = hero["win"]
-        winrate = count_winrate(games, wins)
-        text += str(i + 1) + ". " + get_hero_name(int(hero["hero_id"]))
-        text += " - games: " + str(games) + ", winrate: " + winrate + "\n"
-    return text
+        games.append(hero["games"])
+        won.append(hero["win"])
+        winrate = count_winrate(hero["games"], hero["win"])
+        won_percent.append(winrate)
+        heroes.append(get_hero_name(int(hero["hero_id"]))[:5])
+    ans = {
+        "heroes": heroes,
+        "games": games,
+        "won": won,
+        "won_percent": won_percent
+    }
+    return ans
 
 
 def peers_to_dict(res_json):
