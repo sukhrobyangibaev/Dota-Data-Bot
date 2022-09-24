@@ -1,3 +1,4 @@
+import requests
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes
 
@@ -39,22 +40,28 @@ async def get_new_player(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     try:
         player_id, player_name = update.message.text.split()
         user_id = update.effective_user.id
-        fav_players = fav_players_col.find_one({"user_id": user_id})
-        if not fav_players:
-            fav_players_col.insert_one({
-                "user_id": user_id,
-                "players": [{
+
+        response = requests.get(f"https://api.opendota.com/api/players/{player_id}")
+        if response.status_code == 200 and "profile" in response.json():
+            fav_players = fav_players_col.find_one({"user_id": user_id})
+            if not fav_players:
+                fav_players_col.insert_one({
+                    "user_id": user_id,
+                    "players": [{
+                        "id": int(player_id),
+                        "name": player_name
+                    }]
+                })
+            else:
+                fav_players["players"].append({
                     "id": int(player_id),
                     "name": player_name
-                }]
-            })
+                })
+                fav_players_col.update_one({"_id": fav_players["_id"]}, {"$set": fav_players})
+            return await favourite_players(update, context)
         else:
-            fav_players["players"].append({
-                "id": int(player_id),
-                "name": player_name
-            })
-            fav_players_col.update_one({"_id": fav_players["_id"]}, {"$set": fav_players})
-        return await favourite_players(update, context)
+            await update.message.reply_text("wrong player's id")
+            return await add_new_player(update, context)
     except ValueError:
         await update.message.reply_text("error, please check spelling")
         return await add_new_player(update, context)
