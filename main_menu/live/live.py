@@ -18,8 +18,6 @@ async def live(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         text = "no pro matches\n\n"
     text += helpers.get_public_matches(res_json, fav_players)
 
-    button = [["MAIN MENU"]]
-    keyboard = ReplyKeyboardMarkup(button)
     while len(text) > 4096:
         last_pos = text[0:4096].rfind("\n\n")
         await update.message.reply_html(text=text[0:last_pos])
