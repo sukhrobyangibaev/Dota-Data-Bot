@@ -68,7 +68,7 @@ async def player_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         ["WIN/LOSE", "RECENT MATCHES", "SORTED MATCHES"],
         ["MOST PICKED HEROES", "PEERS", "TOTALS"],
         ["LEAVER STATUS", "WORDCLOUD", "REFRESH"],
-        ["WRITE OTHER ID", "MAIN MENU"]
+        ["CHOOSE ANOTHER PLAYER", "MAIN MENU"]
     ]
     keyboard = ReplyKeyboardMarkup(search_buttons)
     text = "account id: " + context.user_data[ACCOUNT_ID] + ", name: " + context.user_data[PLAYER_NAME]
