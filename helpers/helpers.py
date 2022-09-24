@@ -88,17 +88,28 @@ def hero_stats(res_json) -> str:
     return text
 
 
-def peers_to_text(res_json) -> str:
-    text = ""
+def peers_to_dict(res_json):
     counter = 0
+    players = []
+    games = []
+    won = []
+    won_percent = []
     for peer in res_json:
         counter += 1
-        games = peer["games"]
-        winrate = count_winrate(games, peer["win"])
-        text += peer["personaname"] + " - games " + str(games) + ", winrate " + winrate + "\n"
+        players.append(peer["personaname"][:5])
+        games.append(peer["games"])
+        won.append(peer["win"])
+        winrate = count_winrate(peer["games"], peer["win"])
+        won_percent.append(winrate)
         if counter == 10:
             break
-    return text
+    ans = {
+        "players": players,
+        "games": games,
+        "won": won,
+        "won_percent": won_percent
+    }
+    return ans
 
 
 def totals_to_text(res_json) -> str:
