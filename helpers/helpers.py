@@ -152,7 +152,7 @@ def get_wordcloud_list(res_json):
 def pro_players_to_text(players) -> str:
     text = ""
     for player in players:
-        text += "\n\nname: " + player["name"]
+        text += "\n\nname: " + player["name"].replace('<', '')
         if player["team_name"]:
             text += "\nteam: " + player["team_name"]
         if player["country_code"]:
