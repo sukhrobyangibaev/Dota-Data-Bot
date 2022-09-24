@@ -2,7 +2,9 @@ import requests
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes
 
-from constants import fav_players_col, FAVOURITE_PLAYERS, ADD_NEW_PLAYER, DELETE_PLAYER
+from constants import fav_players_col, FAVOURITE_PLAYERS, ADD_NEW_PLAYER, DELETE_PLAYER, CHOOSE_PLAYER, ACCOUNT_ID, \
+    PLAYER_NAME
+from main_menu.players_menu import player_menu
 
 
 async def favourite_players(update: Update, _) -> int:
@@ -15,9 +17,8 @@ async def favourite_players(update: Update, _) -> int:
     else:
         text = "list is empty"
 
-    buttons = [["ADD NEW PLAYER"],
-               ["DELETE PLAYER"],
-               ["BACK"]]
+    buttons = [["ADD NEW PLAYER", "DELETE PLAYER"],
+               ["CHOOSE PLAYER", "BACK"]]
     keyboard = ReplyKeyboardMarkup(buttons)
     await update.message.reply_text(text=text, reply_markup=keyboard)
 
@@ -34,6 +35,12 @@ async def type_delete_number(update: Update, _) -> int:
     await update.message.reply_text(text="✍ write player's order in list (e.g. \"1\" or \"2\")",
                                     reply_markup=ReplyKeyboardRemove())
     return DELETE_PLAYER
+
+
+async def type_choose_number(update: Update, _) -> int:
+    await update.message.reply_text(text="✍ write player's order in list (e.g. \"1\" or \"2\")",
+                                    reply_markup=ReplyKeyboardRemove())
+    return CHOOSE_PLAYER
 
 
 async def get_new_player(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -79,6 +86,29 @@ async def get_players_order(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             text = "player successfully deleted"
             await update.message.reply_text(text)
             return await favourite_players(update, context)
+        except TypeError:
+            text = "order must be integer"
+        except IndexError:
+            text = "order is out of range"
+        await update.message.reply_text(text)
+        return await type_delete_number(update, context)
+    else:
+        text = "order must be digit"
+        await update.message.reply_text(text)
+        return await type_delete_number(update, context)
+
+
+async def get_chosen_players_order(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    order = update.message.text
+    user_id = update.effective_user.id
+    if order.isnumeric():
+        idx = int(order)
+        fav_players = fav_players_col.find_one({"user_id": user_id})
+        try:
+            chosen_player = fav_players["players"][idx - 1]
+            context.user_data[ACCOUNT_ID] = str(chosen_player["id"])
+            context.user_data[PLAYER_NAME] = chosen_player["name"]
+            return await player_menu(update, context)
         except TypeError:
             text = "order must be integer"
         except IndexError:

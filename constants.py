@@ -76,8 +76,9 @@ logger = logging.getLogger(__name__)
     TYPE_ADMIN_MESSAGE,
     FAVOURITE_PLAYERS,
     ADD_NEW_PLAYER,
-    DELETE_PLAYER
-) = range(68)
+    DELETE_PLAYER,
+    CHOOSE_PLAYER
+) = range(69)
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["opendotabot"]

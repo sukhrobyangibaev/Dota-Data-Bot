@@ -13,7 +13,7 @@ from constants import *
 from main_menu import start, main_menu
 from main_menu.admin import send_admin_message, admin
 from main_menu.fav_players import get_new_player, get_players_order, add_new_player, type_delete_number, \
-    favourite_players
+    favourite_players, type_choose_number, get_chosen_players_order
 from main_menu.live import live
 from main_menu.matches import matches, get_match_id
 from main_menu.players_menu import check_account_id, save_account_id, player_menu, \
@@ -44,6 +44,7 @@ def main() -> None:
             TYPE_PRO_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_pro_player_name)],
             ADD_NEW_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_new_player)],
             DELETE_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_players_order)],
+            CHOOSE_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_chosen_players_order)],
             MATCHES: [
                 MessageHandler(filters.Regex("^WRITE OTHER ID$"), matches),
             ],
@@ -91,6 +92,7 @@ def main() -> None:
             FAVOURITE_PLAYERS: [
                 MessageHandler(filters.Regex("^ADD NEW PLAYER$"), add_new_player),
                 MessageHandler(filters.Regex("^DELETE PLAYER$"), type_delete_number),
+                MessageHandler(filters.Regex("^CHOOSE PLAYER$"), type_choose_number),
                 MessageHandler(filters.Regex("^BACK$"), main_menu),
             ],
             PLAYERS: [
