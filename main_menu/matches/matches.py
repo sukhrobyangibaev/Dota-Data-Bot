@@ -1,8 +1,10 @@
 import requests
 from telegram import Update, ReplyKeyboardRemove, ReplyKeyboardMarkup
+from telegram.ext import ContextTypes
 
 from constants import TYPING_MATCH_ID, MATCHES
 from helpers import helpers
+from main_menu import main_menu
 
 
 async def matches(update: Update, _) -> int:
@@ -11,7 +13,7 @@ async def matches(update: Update, _) -> int:
     return TYPING_MATCH_ID
 
 
-async def get_match_id(update: Update, _) -> int:
+async def get_match_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     match_id = update.message.text
     buttons = [["WRITE OTHER ID"], ["MAIN MENU"]]
     keyboard = ReplyKeyboardMarkup(buttons)
@@ -40,9 +42,8 @@ async def get_match_id(update: Update, _) -> int:
         if res_json["picks_bans"]:
             text += "\n\nPicks:\n" + helpers.get_picks(teams, res_json["picks_bans"])
         await update.message.reply_text(text=text)
-        await update.message.reply_text(text="choose option:", reply_markup=keyboard)
     else:
         text = "wrong match id"
-        await update.message.reply_text(text=text, reply_markup=keyboard)
+        await update.message.reply_text(text=text)
 
-    return MATCHES
+    return await main_menu(update, context)
