@@ -186,7 +186,8 @@ def get_public_matches(res_json, favourite_players) -> str:
                             for fav_players in favourite_players["players"]:
                                 if player["account_id"] in fav_players.values():
                                     text += "⭐"
-                        text += "<code>{}</code> {} - {}\n".format(player["account_id"], player["name"],
+                        text += "<code>{}</code> {} - {}\n".format(player["account_id"],
+                                                                   player["name"].replace('<', ''),
                                                                    get_hero_name(player["hero_id"]))
             text += "\n"
     if is_pro_player:

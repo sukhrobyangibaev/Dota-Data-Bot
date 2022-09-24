@@ -1,29 +1,26 @@
-import io
-import csv
-from datetime import datetime
+# 想像力상상력想像力—— —— — - games 501, winrate 63%
+# me sleeping - games 490, winrate 64%
+# Довольный - games 429, winrate 65%
+# demon1999- - games 332, winrate 65%
+# 3412ztqezwiujqzwaedo-0k - games 267, winrate 50%
+# iwlufmbkv - games 237, winrate 54%
+# jlhtc - games 223, winrate 60%
+# Switchback - games 219, winrate 47%
+# MOM LOOK I CAN PLAY UNDYING) - games 217, winrate 53%
+# tv/Shergarat (Vladimir) - games 205, winrate 53%
 
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import seaborn as sns
 
+players = ['想像力상상력想像力—— —— —', 'me sleeping', 'Довольный', 'demon1999']
+games = [501, 490, 429, 332]
+winrate = [63, 64, 65, 65]
 
-plt.xticks(rotation=35)
-sns.set()
-sns.set_style("ticks")
-sns.set_style("whitegrid")
-dates_fmt = mdates.DateFormatter('%d %b')
+ax = plt.subplot()
+# plt.bar()
+ax.bar(players, games, color='b')
+ax.bar(players, winrate, color='g')
+for i in range(len(players)):
+    ax.text(players[i], games[i] + 5, "asd", ha='center', color='black')
+    ax.text(players[i], winrate[i] + 5, "asd", ha='center', color='white')
 
-
-def get_quizes_plot(quizes):
-    fig, ax = plt.subplots()
-    ax.xaxis.set_major_formatter(dates_fmt)
-    for type_ in ('hars', 'madrs'):
-        x = [datetime.strptime(quiz.created_at, '%Y-%m-%d %H-%M-%S') for quiz in quizes if quiz.type_ == type_]
-        y = [quiz.result for quiz in quizes if quiz.type_ == type_]
-        ax.plot(x, y, label=type_.upper())
-    ax.legend()
-    sns.despine()
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    return buf
+plt.show()
