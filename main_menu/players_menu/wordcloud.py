@@ -1,9 +1,10 @@
 import requests
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update
 from telegram.ext import ContextTypes
 
-from constants import ACCOUNT_ID, WORDCLOUD
+from constants import ACCOUNT_ID
 from helpers import helpers
+from main_menu.players_menu import player_menu
 from plots import get_pie_plot
 
 
@@ -12,10 +13,8 @@ async def wordcloud(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/wordcloud")
     res_json = response.json()
     word_list = helpers.get_wordcloud_list(res_json)
-    button = [["BACK"]]
-    keyboard = ReplyKeyboardMarkup(button)
 
     plot = get_pie_plot(word_list)
-    await update.message.reply_photo(photo=plot, reply_markup=keyboard)
+    await update.message.reply_photo(photo=plot)
 
-    return WORDCLOUD
+    return await player_menu(update, context)
