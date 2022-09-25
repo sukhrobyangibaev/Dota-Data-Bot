@@ -1,8 +1,9 @@
 import requests
-from telegram import ReplyKeyboardMarkup, Update
+from telegram import Update
 from telegram.ext import ContextTypes
 
-from constants import REFRESH, ACCOUNT_ID
+from constants import ACCOUNT_ID
+from main_menu.players_menu import player_menu
 
 
 async def refresh(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -12,8 +13,7 @@ async def refresh(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         text = "account refreshed"
     else:
         text = "wrong request"
-    button = [["BACK"]]
-    keyboard = ReplyKeyboardMarkup(button)
-    await update.message.reply_text(text=text, reply_markup=keyboard)
 
-    return REFRESH
+    await update.message.reply_text(text=text)
+
+    return await player_menu(update, context)
