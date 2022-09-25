@@ -1,10 +1,11 @@
 import requests
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update
 from telegram.ext import ContextTypes
 
-from constants import ACCOUNT_ID, PLAYER_HEROES
+from constants import ACCOUNT_ID
 from helpers import helpers
 from plots import get_most_picked_heroes_plot
+from .players_menu import player_menu
 
 
 async def player_heroes_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -14,8 +15,7 @@ async def player_heroes_stats(update: Update, context: ContextTypes.DEFAULT_TYPE
     res_json = response.json()
     heroes_dict = helpers.hero_stats(res_json)
     plot = get_most_picked_heroes_plot(heroes_dict)
-    button = [["BACK"]]
-    keyboard = ReplyKeyboardMarkup(button)
-    await update.message.reply_photo(photo=plot, reply_markup=keyboard)
 
-    return PLAYER_HEROES
+    await update.message.reply_photo(photo=plot)
+
+    return await player_menu(update, context)
