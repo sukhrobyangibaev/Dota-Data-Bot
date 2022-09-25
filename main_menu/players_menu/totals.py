@@ -1,9 +1,10 @@
 import requests
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update
 from telegram.ext import ContextTypes
 
-from constants import ACCOUNT_ID, TOTALS
+from constants import ACCOUNT_ID
 from helpers import helpers
+from main_menu.players_menu import player_menu
 
 
 async def totals(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -11,8 +12,6 @@ async def totals(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/totals")
     res_json = response.json()
     text = helpers.totals_to_text(res_json)
-    button = [["BACK"]]
-    keyboard = ReplyKeyboardMarkup(button)
-    await update.message.reply_text(text=text, reply_markup=keyboard)
+    await update.message.reply_text(text=text)
 
-    return TOTALS
+    return await player_menu(update, context)
