@@ -29,11 +29,9 @@ async def sort_by_kda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     res_json = response.json()
     text = helpers.matches_to_str(res_json)
 
-    button = [["BACK"]]
-    keyboard = ReplyKeyboardMarkup(button)
-    await update.message.reply_text(text=text, reply_markup=keyboard)
+    await update.message.reply_text(text=text)
 
-    return PLAYER_MATCHES
+    return await player_matches(update, context)
 
 
 # MAIN MENU -> PLAYERS MENU -> PLAYERS MATCHES -> SORT BY WL ---------------------------------------------
@@ -45,11 +43,9 @@ async def sort_by_wl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     res_json = response.json()
     text = helpers.matches_to_str(res_json)
 
-    button = [["BACK"]]
-    keyboard = ReplyKeyboardMarkup(button)
-    await update.message.reply_text(text=text, reply_markup=keyboard)
+    await update.message.reply_text(text=text)
 
-    return PLAYER_MATCHES
+    return await player_matches(update, context)
 
 
 # MAIN MENU -> PLAYERS MENU -> PLAYERS MATCHES -> SORT BY HERO ---------------------------------------------
@@ -101,8 +97,7 @@ async def sort_by_hero(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         text = helpers.matches_to_str(res_json)
     else:
         text = "matches not found"
-    button = [["BACK"]]
-    keyboard = ReplyKeyboardMarkup(button)
-    await update.message.reply_text(text=text, reply_markup=keyboard)
 
-    return SORT_BY_HERO
+    await update.message.reply_text(text=text)
+
+    return await choose_hero_to_sort(update, context)
