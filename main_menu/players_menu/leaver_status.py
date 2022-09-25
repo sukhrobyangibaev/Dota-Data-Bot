@@ -1,9 +1,10 @@
 import requests
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update
 from telegram.ext import ContextTypes
 
-from constants import ACCOUNT_ID, LEAVER_STATUS
+from constants import ACCOUNT_ID
 from helpers import helpers
+from main_menu.players_menu import player_menu
 
 
 async def leaver_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -11,8 +12,7 @@ async def leaver_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     response = requests.get(f"https://api.opendota.com/api/players/{account_id}/counts")
     res_json = response.json()
     text = helpers.leaver_status_to_text(res_json)
-    button = [["BACK"]]
-    keyboard = ReplyKeyboardMarkup(button)
-    await update.message.reply_text(text=text, reply_markup=keyboard)
 
-    return LEAVER_STATUS
+    await update.message.reply_text(text=text)
+
+    return await player_menu(update, context)
