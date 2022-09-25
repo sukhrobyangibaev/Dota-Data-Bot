@@ -97,6 +97,7 @@ def main() -> None:
             ],
             PLAYERS: [
                 MessageHandler(filters.Regex("^CHOOSE ANOTHER PLAYER$"), favourite_players),
+                MessageHandler(filters.Regex("^WRITE OTHER ID$"), type_account_id),
                 MessageHandler(filters.Regex("^PLAYER'S MENU$"), player_menu),
                 MessageHandler(filters.Regex("^MAIN MENU$"), main_menu),
                 MessageHandler(filters.Regex("^WIN/LOSE$"), wl),
