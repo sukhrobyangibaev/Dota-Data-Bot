@@ -10,7 +10,7 @@ from telegram.ext import (
 )
 
 from constants import *
-from main_menu import start, main_menu
+from main_menu import start, main_menu, error_handler
 from main_menu.admin import send_admin_message, admin
 from main_menu.fav_players import get_new_player, get_players_order, add_new_player, type_delete_number, \
     favourite_players, type_choose_number, get_chosen_players_order
@@ -128,6 +128,7 @@ def main() -> None:
         ]
     )
     app.add_handler(conv_handler)
+    app.add_error_handler(error_handler)
 
     helpers.mongodb_heroes_init()
     helpers.mongodb_pro_players_init()

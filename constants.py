@@ -100,3 +100,5 @@ wl_obj = {
     "WIN": 1,
     "LOSE": 0
 }
+
+DEVELOPER_CHAT_ID = '1476403327'
