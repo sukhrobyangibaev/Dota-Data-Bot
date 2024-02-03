@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 import helpers
 
 from telegram.ext import (
@@ -23,9 +24,10 @@ from main_menu.players_menu.players_matches import next_hero_list, choose_hero_t
     sort_by_kda, sort_by_wl
 from main_menu.pro_player import type_pro_player, get_pro_player_name
 
+load_dotenv()
 
 def main() -> None:
-    app = Application.builder().token(os.environ['TOKEN']).build()
+    app = Application.builder().token(os.getenv('TOKEN')).build()
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],

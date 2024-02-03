@@ -1,12 +1,14 @@
 import logging
-
+import sys
 import pymongo
 
 logging.basicConfig(
-    filename='dota_data_bot.log',
+    # filename='dota_data_bot.log',
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
+    level=logging.INFO,
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
+logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 (
