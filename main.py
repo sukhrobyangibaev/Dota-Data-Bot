@@ -16,6 +16,7 @@ from main_menu.admin import send_admin_message, admin
 from main_menu.fav_players import get_new_player, get_players_order, add_new_player, type_delete_number, \
     favourite_players, type_choose_number, get_chosen_players_order
 from main_menu.live import live
+from main_menu.live_league import live_league
 from main_menu.matches import matches, get_match_id
 from main_menu.players_menu import check_account_id, save_account_id, player_menu, \
     type_account_id, wl, recent_matches, player_heroes_stats, peers, totals, \
@@ -37,7 +38,8 @@ def main() -> None:
                 MessageHandler(filters.Regex("^📈 PLAYER'S STATS$"), check_account_id),
                 MessageHandler(filters.Regex("^🔍 SEARCH PRO PLAYERS$"), type_pro_player),
                 MessageHandler(filters.Regex("^⭐ FAVOURITE PLAYERS$"), favourite_players),
-                MessageHandler(filters.Regex("^🔴 LIVE MATCHES$"), live)
+                MessageHandler(filters.Regex("^🔴 LIVE MATCHES$"), live),
+                MessageHandler(filters.Regex("^🔵 LIVE LEAGUE MATCHES$"), live_league)
             ],
             LIVE: [
                 MessageHandler(filters.Regex("^MAIN MENU$"), main_menu)
@@ -126,6 +128,7 @@ def main() -> None:
             CommandHandler("admin", admin),
             CommandHandler("menu", start),
             MessageHandler(filters.Regex("^🔴 LIVE MATCHES$"), live),
+            MessageHandler(filters.Regex("^🔵 LIVE LEAGUE MATCHES$"), live_league),
             MessageHandler(filters.Regex("^MAIN MENU$"), main_menu)
         ]
     )

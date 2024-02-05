@@ -13,7 +13,7 @@ async def main_menu(update: Update, _) -> int:
     buttons = [
         ["🔍 SEARCH PRO PLAYERS", "🔍 SEARCH MATCHES"],
         ["⭐ FAVOURITE PLAYERS", "📈 PLAYER'S STATS"],
-        ["🔴 LIVE MATCHES"]
+        ["🔴 LIVE MATCHES", "🔵 LIVE LEAGUE MATCHES"]
     ]
     keyboard = ReplyKeyboardMarkup(buttons)
 
