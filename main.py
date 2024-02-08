@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import helpers
 
 from telegram.ext import (
+    PicklePersistence,
     Application,
     CommandHandler,
     ConversationHandler,
@@ -28,7 +29,9 @@ from main_menu.pro_player import type_pro_player, get_pro_player_name
 load_dotenv()
 
 def main() -> None:
-    app = Application.builder().token(os.getenv('TOKEN')).build()
+    persistence = PicklePersistence(filepath='persistence.pkl')
+
+    app = Application.builder().token(os.getenv('TOKEN')).persistence(persistence).build()
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
@@ -130,7 +133,9 @@ def main() -> None:
             MessageHandler(filters.Regex("^🔴 LIVE MATCHES$"), live),
             MessageHandler(filters.Regex("^🔵 LIVE LEAGUE MATCHES$"), live_league),
             MessageHandler(filters.Regex("^MAIN MENU$"), main_menu)
-        ]
+        ],
+        persistent=True,
+        name='main_conv'
     )
     app.add_handler(conv_handler)
     app.add_error_handler(error_handler)
