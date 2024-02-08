@@ -81,8 +81,11 @@ logger = logging.getLogger(__name__)
     FAVOURITE_PLAYERS,
     ADD_NEW_PLAYER,
     DELETE_PLAYER,
-    CHOOSE_PLAYER
-) = range(69)
+    CHOOSE_PLAYER,
+    # to predict
+    LIVE_LEAGUE,
+    SELECTED_LEAGUE_MATCH
+) = range(71)
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["opendotabot"]
