@@ -3,4 +3,4 @@ __pycache__/
 venv/
 dota_data_bot.log
 .env
-persistence.pkl
+*.pkl
