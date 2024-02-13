@@ -1,0 +1,539 @@
+{
+    "_id" : ObjectId("65b9d5475abf694c3e4e732f"),
+    "players" : [
+        {
+            "account_id" : NumberInt(1525266647),
+            "name" : "genstrichkh",
+            "hero_id" : NumberInt(22),
+            "team" : NumberInt(1)
+        },
+        {
+            "account_id" : NumberInt(1524955916),
+            "name" : "jmixheal",
+            "hero_id" : NumberInt(28),
+            "team" : NumberInt(1)
+        },
+        {
+            "account_id" : NumberInt(1533499102),
+            "name" : "kuro4ka",
+            "hero_id" : NumberInt(111),
+            "team" : NumberInt(0)
+        },
+        {
+            "account_id" : NumberInt(1459382454),
+            "name" : "Renarr",
+            "hero_id" : NumberInt(72),
+            "team" : NumberInt(0)
+        },
+        {
+            "account_id" : NumberInt(165408919),
+            "name" : "[FMJ] Rogiba",
+            "hero_id" : NumberInt(0),
+            "team" : NumberInt(2)
+        },
+        {
+            "account_id" : NumberInt(131769784),
+            "name" : "stonsosedki",
+            "hero_id" : NumberInt(0),
+            "team" : NumberInt(4)
+        },
+        {
+            "account_id" : NumberInt(1459311384),
+            "name" : "Fantasy",
+            "hero_id" : NumberInt(96),
+            "team" : NumberInt(0)
+        },
+        {
+            "account_id" : NumberInt(1532806426),
+            "name" : "Blue Ivy",
+            "hero_id" : NumberInt(45),
+            "team" : NumberInt(0)
+        },
+        {
+            "account_id" : NumberInt(1470752474),
+            "name" : "Sele6rity",
+            "hero_id" : NumberInt(17),
+            "team" : NumberInt(0)
+        },
+        {
+            "account_id" : NumberInt(1524969195),
+            "name" : "gTolstui",
+            "hero_id" : NumberInt(20),
+            "team" : NumberInt(1)
+        },
+        {
+            "account_id" : NumberInt(1525057958),
+            "name" : "Bedbug",
+            "hero_id" : NumberInt(11),
+            "team" : NumberInt(1)
+        },
+        {
+            "account_id" : NumberInt(151588437),
+            "name" : "Sebastian Pereyra",
+            "hero_id" : NumberInt(0),
+            "team" : NumberInt(4)
+        },
+        {
+            "account_id" : NumberInt(1552711645),
+            "name" : "mischievous",
+            "hero_id" : NumberInt(13),
+            "team" : NumberInt(1)
+        }
+    ],
+    "radiant_team" : {
+        "team_name" : "Marvelous Warriors",
+        "team_id" : NumberInt(8864178),
+        "team_logo" : NumberLong(2289583009755688899),
+        "complete" : false
+    },
+    "dire_team" : {
+        "team_name" : "Crew X",
+        "team_id" : NumberInt(9018528),
+        "team_logo" : NumberLong(2068882429938837131),
+        "complete" : false
+    },
+    "lobby_id" : NumberLong(28632938735385312),
+    "match_id" : NumberLong(7562388172),
+    "spectators" : NumberInt(4),
+    "league_id" : NumberInt(15819),
+    "league_node_id" : NumberInt(331),
+    "stream_delay_s" : NumberInt(120),
+    "radiant_series_wins" : NumberInt(0),
+    "dire_series_wins" : NumberInt(0),
+    "series_type" : NumberInt(1),
+    "scoreboard" : {
+        "duration" : 209.3333740234375,
+        "roshan_respawn_timer" : NumberInt(0),
+        "radiant" : {
+            "score" : NumberInt(0),
+            "tower_state" : NumberInt(2047),
+            "barracks_state" : NumberInt(63),
+            "picks" : [
+                {
+                    "hero_id" : NumberInt(111)
+                },
+                {
+                    "hero_id" : NumberInt(96)
+                },
+                {
+                    "hero_id" : NumberInt(45)
+                },
+                {
+                    "hero_id" : NumberInt(72)
+                },
+                {
+                    "hero_id" : NumberInt(17)
+                }
+            ],
+            "bans" : [
+                {
+                    "hero_id" : NumberInt(101)
+                },
+                {
+                    "hero_id" : NumberInt(58)
+                },
+                {
+                    "hero_id" : NumberInt(71)
+                },
+                {
+                    "hero_id" : NumberInt(10)
+                },
+                {
+                    "hero_id" : NumberInt(46)
+                },
+                {
+                    "hero_id" : NumberInt(76)
+                },
+                {
+                    "hero_id" : NumberInt(40)
+                }
+            ],
+            "players" : [
+                {
+                    "player_slot" : NumberInt(0),
+                    "account_id" : NumberInt(1459382454),
+                    "hero_id" : NumberInt(72),
+                    "kills" : NumberInt(0),
+                    "death" : NumberInt(0),
+                    "assists" : NumberInt(0),
+                    "last_hits" : NumberInt(15),
+                    "denies" : NumberInt(2),
+                    "gold" : NumberInt(579),
+                    "level" : NumberInt(3),
+                    "gold_per_min" : NumberInt(294),
+                    "xp_per_min" : NumberInt(203),
+                    "ultimate_state" : NumberInt(0),
+                    "ultimate_cooldown" : NumberInt(0),
+                    "item0" : NumberInt(16),
+                    "item1" : NumberInt(36),
+                    "item2" : NumberInt(16),
+                    "item3" : NumberInt(2),
+                    "item4" : NumberInt(16),
+                    "item5" : NumberInt(-1),
+                    "respawn_timer" : NumberInt(0),
+                    "position_x" : 5536.30810546875,
+                    "position_y" : -5786.22021484375,
+                    "net_worth" : NumberInt(1729)
+                },
+                {
+                    "player_slot" : NumberInt(1),
+                    "account_id" : NumberInt(1532806426),
+                    "hero_id" : NumberInt(45),
+                    "kills" : NumberInt(0),
+                    "death" : NumberInt(0),
+                    "assists" : NumberInt(0),
+                    "last_hits" : NumberInt(2),
+                    "denies" : NumberInt(0),
+                    "gold" : NumberInt(296),
+                    "level" : NumberInt(2),
+                    "gold_per_min" : NumberInt(126),
+                    "xp_per_min" : NumberInt(138),
+                    "ultimate_state" : NumberInt(0),
+                    "ultimate_cooldown" : NumberInt(0),
+                    "item0" : NumberInt(16),
+                    "item1" : NumberInt(34),
+                    "item2" : NumberInt(44),
+                    "item3" : NumberInt(16),
+                    "item4" : NumberInt(1123),
+                    "item5" : NumberInt(-1),
+                    "respawn_timer" : NumberInt(0),
+                    "position_x" : -5705.267578125,
+                    "position_y" : 2989.104736328125,
+                    "net_worth" : NumberInt(836)
+                },
+                {
+                    "player_slot" : NumberInt(2),
+                    "account_id" : NumberInt(1470752474),
+                    "hero_id" : NumberInt(17),
+                    "kills" : NumberInt(0),
+                    "death" : NumberInt(0),
+                    "assists" : NumberInt(0),
+                    "last_hits" : NumberInt(22),
+                    "denies" : NumberInt(1),
+                    "gold" : NumberInt(150),
+                    "level" : NumberInt(4),
+                    "gold_per_min" : NumberInt(381),
+                    "xp_per_min" : NumberInt(428),
+                    "ultimate_state" : NumberInt(0),
+                    "ultimate_cooldown" : NumberInt(0),
+                    "item0" : NumberInt(36),
+                    "item1" : NumberInt(41),
+                    "item2" : NumberInt(237),
+                    "item3" : NumberInt(-1),
+                    "item4" : NumberInt(16),
+                    "item5" : NumberInt(44),
+                    "respawn_timer" : NumberInt(0),
+                    "position_x" : -846.2647094726562,
+                    "position_y" : -802.667236328125,
+                    "net_worth" : NumberInt(2030)
+                },
+                {
+                    "player_slot" : NumberInt(3),
+                    "account_id" : NumberInt(1459311384),
+                    "hero_id" : NumberInt(96),
+                    "kills" : NumberInt(0),
+                    "death" : NumberInt(0),
+                    "assists" : NumberInt(0),
+                    "last_hits" : NumberInt(10),
+                    "denies" : NumberInt(4),
+                    "gold" : NumberInt(795),
+                    "level" : NumberInt(2),
+                    "gold_per_min" : NumberInt(224),
+                    "xp_per_min" : NumberInt(151),
+                    "ultimate_state" : NumberInt(0),
+                    "ultimate_cooldown" : NumberInt(0),
+                    "item0" : NumberInt(16),
+                    "item1" : NumberInt(11),
+                    "item2" : NumberInt(44),
+                    "item3" : NumberInt(12),
+                    "item4" : NumberInt(12),
+                    "item5" : NumberInt(-1),
+                    "respawn_timer" : NumberInt(0),
+                    "position_x" : -6263.23876953125,
+                    "position_y" : 2738.26513671875,
+                    "net_worth" : NumberInt(1485)
+                },
+                {
+                    "player_slot" : NumberInt(4),
+                    "account_id" : NumberInt(1533499102),
+                    "hero_id" : NumberInt(111),
+                    "kills" : NumberInt(0),
+                    "death" : NumberInt(0),
+                    "assists" : NumberInt(0),
+                    "last_hits" : NumberInt(1),
+                    "denies" : NumberInt(1),
+                    "gold" : NumberInt(313),
+                    "level" : NumberInt(3),
+                    "gold_per_min" : NumberInt(137),
+                    "xp_per_min" : NumberInt(187),
+                    "ultimate_state" : NumberInt(0),
+                    "ultimate_cooldown" : NumberInt(0),
+                    "item0" : NumberInt(44),
+                    "item1" : NumberInt(88),
+                    "item2" : NumberInt(-1),
+                    "item3" : NumberInt(-1),
+                    "item4" : NumberInt(-1),
+                    "item5" : NumberInt(34),
+                    "respawn_timer" : NumberInt(0),
+                    "position_x" : 5016.0888671875,
+                    "position_y" : -5231.27783203125,
+                    "net_worth" : NumberInt(1128)
+                }
+            ],
+            "abilities" : [
+                {
+                    "ability_id" : NumberInt(5637),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(5639),
+                    "ability_level" : NumberInt(2)
+                },
+                {
+                    "ability_id" : NumberInt(5669),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(842),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(8873),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(2610),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(2611),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(8034),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(8035),
+                    "ability_level" : NumberInt(1)
+                }
+            ]
+        },
+        "dire" : {
+            "score" : NumberInt(0),
+            "tower_state" : NumberInt(2047),
+            "barracks_state" : NumberInt(63),
+            "picks" : [
+                {
+                    "hero_id" : NumberInt(20)
+                },
+                {
+                    "hero_id" : NumberInt(22)
+                },
+                {
+                    "hero_id" : NumberInt(28)
+                },
+                {
+                    "hero_id" : NumberInt(11)
+                },
+                {
+                    "hero_id" : NumberInt(13)
+                }
+            ],
+            "bans" : [
+                {
+                    "hero_id" : NumberInt(112)
+                },
+                {
+                    "hero_id" : NumberInt(37)
+                },
+                {
+                    "hero_id" : NumberInt(86)
+                },
+                {
+                    "hero_id" : NumberInt(137)
+                },
+                {
+                    "hero_id" : NumberInt(54)
+                },
+                {
+                    "hero_id" : NumberInt(21)
+                },
+                {
+                    "hero_id" : NumberInt(74)
+                }
+            ],
+            "players" : [
+                {
+                    "player_slot" : NumberInt(128),
+                    "account_id" : NumberInt(1525057958),
+                    "hero_id" : NumberInt(11),
+                    "kills" : NumberInt(0),
+                    "death" : NumberInt(0),
+                    "assists" : NumberInt(0),
+                    "last_hits" : NumberInt(17),
+                    "denies" : NumberInt(2),
+                    "gold" : NumberInt(661),
+                    "level" : NumberInt(3),
+                    "gold_per_min" : NumberInt(314),
+                    "xp_per_min" : NumberInt(251),
+                    "ultimate_state" : NumberInt(0),
+                    "ultimate_cooldown" : NumberInt(0),
+                    "item0" : NumberInt(11),
+                    "item1" : NumberInt(20),
+                    "item2" : NumberInt(-1),
+                    "item3" : NumberInt(14),
+                    "item4" : NumberInt(25),
+                    "item5" : NumberInt(16),
+                    "respawn_timer" : NumberInt(0),
+                    "position_x" : -6097.01171875,
+                    "position_y" : 3686.526123046875,
+                    "net_worth" : NumberInt(1706)
+                },
+                {
+                    "player_slot" : NumberInt(129),
+                    "account_id" : NumberInt(1524955916),
+                    "hero_id" : NumberInt(28),
+                    "kills" : NumberInt(0),
+                    "death" : NumberInt(0),
+                    "assists" : NumberInt(0),
+                    "last_hits" : NumberInt(18),
+                    "denies" : NumberInt(1),
+                    "gold" : NumberInt(570),
+                    "level" : NumberInt(3),
+                    "gold_per_min" : NumberInt(332),
+                    "xp_per_min" : NumberInt(260),
+                    "ultimate_state" : NumberInt(0),
+                    "ultimate_cooldown" : NumberInt(0),
+                    "item0" : NumberInt(11),
+                    "item1" : NumberInt(29),
+                    "item2" : NumberInt(36),
+                    "item3" : NumberInt(-1),
+                    "item4" : NumberInt(16),
+                    "item5" : NumberInt(44),
+                    "respawn_timer" : NumberInt(0),
+                    "position_x" : 5953.8984375,
+                    "position_y" : -4705.6748046875,
+                    "net_worth" : NumberInt(1860)
+                },
+                {
+                    "player_slot" : NumberInt(130),
+                    "account_id" : NumberInt(1525266647),
+                    "hero_id" : NumberInt(22),
+                    "kills" : NumberInt(0),
+                    "death" : NumberInt(0),
+                    "assists" : NumberInt(0),
+                    "last_hits" : NumberInt(2),
+                    "denies" : NumberInt(0),
+                    "gold" : NumberInt(282),
+                    "level" : NumberInt(2),
+                    "gold_per_min" : NumberInt(146),
+                    "xp_per_min" : NumberInt(155),
+                    "ultimate_state" : NumberInt(0),
+                    "ultimate_cooldown" : NumberInt(0),
+                    "item0" : NumberInt(88),
+                    "item1" : NumberInt(4204),
+                    "item2" : NumberInt(216),
+                    "item3" : NumberInt(38),
+                    "item4" : NumberInt(-1),
+                    "item5" : NumberInt(-1),
+                    "respawn_timer" : NumberInt(0),
+                    "position_x" : 5681.72412109375,
+                    "position_y" : -4004.04443359375,
+                    "net_worth" : NumberInt(922)
+                },
+                {
+                    "player_slot" : NumberInt(131),
+                    "account_id" : NumberInt(1552711645),
+                    "hero_id" : NumberInt(13),
+                    "kills" : NumberInt(0),
+                    "death" : NumberInt(0),
+                    "assists" : NumberInt(0),
+                    "last_hits" : NumberInt(11),
+                    "denies" : NumberInt(2),
+                    "gold" : NumberInt(98),
+                    "level" : NumberInt(4),
+                    "gold_per_min" : NumberInt(237),
+                    "xp_per_min" : NumberInt(404),
+                    "ultimate_state" : NumberInt(0),
+                    "ultimate_cooldown" : NumberInt(0),
+                    "item0" : NumberInt(44),
+                    "item1" : NumberInt(36),
+                    "item2" : NumberInt(41),
+                    "item3" : NumberInt(237),
+                    "item4" : NumberInt(-1),
+                    "item5" : NumberInt(16),
+                    "respawn_timer" : NumberInt(0),
+                    "position_x" : -358.2644958496094,
+                    "position_y" : -67.2291488647461,
+                    "net_worth" : NumberInt(1528)
+                },
+                {
+                    "player_slot" : NumberInt(132),
+                    "account_id" : NumberInt(1524969195),
+                    "hero_id" : NumberInt(20),
+                    "kills" : NumberInt(0),
+                    "death" : NumberInt(0),
+                    "assists" : NumberInt(0),
+                    "last_hits" : NumberInt(5),
+                    "denies" : NumberInt(0),
+                    "gold" : NumberInt(580),
+                    "level" : NumberInt(2),
+                    "gold_per_min" : NumberInt(174),
+                    "xp_per_min" : NumberInt(173),
+                    "ultimate_state" : NumberInt(0),
+                    "ultimate_cooldown" : NumberInt(0),
+                    "item0" : NumberInt(4204),
+                    "item1" : NumberInt(-1),
+                    "item2" : NumberInt(34),
+                    "item3" : NumberInt(-1),
+                    "item4" : NumberInt(16),
+                    "item5" : NumberInt(16),
+                    "respawn_timer" : NumberInt(0),
+                    "position_x" : -6384.123046875,
+                    "position_y" : 4182.603515625,
+                    "net_worth" : NumberInt(1030)
+                }
+            ],
+            "abilities" : [
+                {
+                    "ability_id" : NumberInt(5122),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(5124),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(5669),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(842),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(8873),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(2610),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(2611),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(8034),
+                    "ability_level" : NumberInt(1)
+                },
+                {
+                    "ability_id" : NumberInt(8035),
+                    "ability_level" : NumberInt(1)
+                }
+            ]
+        }
+    },
+    "winner" : "dire"
+}

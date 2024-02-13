@@ -1,10 +1,17 @@
 import requests
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ReplyKeyboardMarkup
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Update,
+    ReplyKeyboardMarkup,
+)
 from telegram.ext import ContextTypes
+import pandas as pd
 from constants import LIVE_LEAGUE, SELECTED_LEAGUE_MATCH
-from main_menu import main_menu
 from dotenv import load_dotenv
 import os
+
+from helpers.helpers import get_league_match_button_text, get_league_match_features, get_league_match_info, predict_league_match_result
 
 load_dotenv()
 
@@ -14,44 +21,49 @@ KEY = os.getenv("STEAM_KEY")
 
 async def live_league(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     buttons = []
-    
+
     response = requests.get(LEAGUE_GAMES_URL, params={"key": KEY})
     res_json = response.json()
 
+    context.chat_data["last_league_response"] = res_json
+
     for match in res_json["result"]["games"]:
-        if 'scoreboard' not in match or match['scoreboard']['duration'] == 0:
-            continue
+        button_text = get_league_match_button_text(match)
 
-        radiant = dire = "unknown"
-        radiant_score = dire_score = 0
-        duration = '0:0'
-        if "radiant_team" in match:
-            radiant = match["radiant_team"]["team_name"]
-        if "dire_team" in match:
-            dire = match["dire_team"]["team_name"]
-        h, m = divmod(match["scoreboard"]["duration"], 60)
-        duration = "{}:{:02}".format(int(h), int(m))
-        radiant_score = match["scoreboard"]["radiant"]["score"]
-        dire_score = match["scoreboard"]["dire"]["score"]
-
-        text = "\n\n{} [{}] 🆚 [{}] {} ⏲ {}".format(
-            radiant, radiant_score, dire_score, dire, duration
-        )
-        buttons.append([InlineKeyboardButton(text, callback_data=match['match_id'])])
+        if button_text:
+            buttons.append(
+                [InlineKeyboardButton(button_text, callback_data=match["match_id"])]
+            )
 
     keyboard = InlineKeyboardMarkup(buttons)
-    await update.message.reply_text('Live League Matches:', reply_markup=keyboard)
+    await update.message.reply_text("Live League Matches:", reply_markup=keyboard)
 
     return LIVE_LEAGUE
 
 
-async def select_league_match(update: Update, _) -> int:
+async def select_league_match(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
     query = update.callback_query
     await query.answer()
-
     match_id = query.data
 
-    keyboard = InlineKeyboardMarkup([[InlineKeyboardButton('text', callback_data=match_id)]])
+    res_json = context.chat_data["last_league_response"]
 
-    await query.edit_message_text('text', reply_markup=keyboard)
+
+    for entry in res_json["result"]["games"]:
+        if str(entry["match_id"]) != match_id:
+            continue
+
+        match_info = get_league_match_info(entry)
+
+        X = get_league_match_features(entry)
+        
+        prediction = predict_league_match_result(X)
+
+    keyboard = InlineKeyboardMarkup(
+        [[InlineKeyboardButton("back", callback_data=match_id)]]
+    )
+
+    await query.edit_message_text(match_info + prediction, reply_markup=keyboard)
     return SELECTED_LEAGUE_MATCH

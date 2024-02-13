@@ -1,8 +1,8 @@
 from itertools import islice
-
+import numpy as np
 import requests
 
-from constants import heroes_col, mydb, logger, pro_players_col
+from constants import ET_CLASSIFIER, heroes_col, mydb, logger, pro_players_col
 
 
 def mongodb_heroes_init() -> None:
@@ -194,3 +194,131 @@ def get_public_matches(res_json, favourite_players) -> str:
         return text
     else:
         return ""
+
+
+def get_league_match_button_text(match) -> str:
+    if 'scoreboard' not in match or match['scoreboard']['duration'] == 0:
+        return ''
+
+    radiant = dire = "unknown"
+
+    if "radiant_team" in match:
+        radiant = match["radiant_team"]["team_name"]
+    if "dire_team" in match:
+        dire = match["dire_team"]["team_name"]
+
+    h, m = divmod(match["scoreboard"]["duration"], 60)
+    duration = "{}:{:02}".format(int(h), int(m))
+
+    radiant_score = match["scoreboard"]["radiant"]["score"]
+    dire_score = match["scoreboard"]["dire"]["score"]
+
+    text = "{} [{}] 🆚 [{}] {} ⏲ {}".format(
+        radiant, radiant_score, dire_score, dire, duration
+    )
+    return text
+
+
+def get_league_match_info(match) -> str:
+    radiant = dire = "unknown"
+
+    if "radiant_team" in match:
+        radiant = match["radiant_team"]["team_name"]
+    if "dire_team" in match:
+        dire = match["dire_team"]["team_name"]
+
+    h, m = divmod(match["scoreboard"]["duration"], 60)
+    duration = "{}:{:02}".format(int(h), int(m))
+
+    radiant_score = match["scoreboard"]["radiant"]["score"]
+    dire_score = match["scoreboard"]["dire"]["score"]
+
+    
+    text = """🟢{} vs {}🔴
+    duration: {}
+    score: {} vs {}
+    """.format(
+            radiant, dire,
+            duration,
+            radiant_score, dire_score
+        )
+    
+    return text
+
+def get_league_match_features(match):
+    features = []
+
+    features.append(match["scoreboard"]["duration"])
+    features.append(match["radiant_series_wins"])
+    features.append(match["dire_series_wins"])
+
+    features.append(
+        match["scoreboard"]["radiant"]["score"]
+        - match["scoreboard"]["dire"]["score"]
+    )
+    features.append(
+        match["scoreboard"]["radiant"]["tower_state"]
+        - match["scoreboard"]["dire"]["tower_state"]
+    )
+    features.append(
+        match["scoreboard"]["radiant"]["barracks_state"]
+        - match["scoreboard"]["dire"]["barracks_state"]
+    )
+
+    radiant_net_worth = 0
+    dire_net_worth = 0
+
+    for i, player in enumerate(match["scoreboard"]["radiant"]["players"]):
+        features.append(player["kills"])
+        features.append(player["death"])
+        features.append(player["assists"])
+        features.append(player["last_hits"])
+        features.append(player["gold"])
+        features.append(player["level"])
+        features.append(player["gold_per_min"])
+        features.append(player["xp_per_min"])
+        features.append(player["item0"])
+        features.append(player["item1"])
+        features.append(player["item2"])
+        features.append(player["item3"])
+        features.append(player["item4"])
+        features.append(player["item5"])
+        features.append(player["net_worth"])
+
+        radiant_net_worth += player["net_worth"]
+
+    for i, player in enumerate(match["scoreboard"]["dire"]["players"]):
+        features.append(player["kills"])
+        features.append(player["death"])
+        features.append(player["assists"])
+        features.append(player["last_hits"])
+        features.append(player["gold"])
+        features.append(player["level"])
+        features.append(player["gold_per_min"])
+        features.append(player["xp_per_min"])
+        features.append(player["item0"])
+        features.append(player["item1"])
+        features.append(player["item2"])
+        features.append(player["item3"])
+        features.append(player["item4"])
+        features.append(player["item5"])
+        features.append(player["net_worth"])
+
+        dire_net_worth += player["net_worth"]
+
+    features.append(radiant_net_worth - dire_net_worth)
+
+    return np.array([features])
+
+
+def predict_league_match_result(X):
+    prediction = 'prediction: '
+
+    y_pred = ET_CLASSIFIER.predict_proba(X)[0]
+    
+    if y_pred[0] > y_pred[1]:
+        prediction += f"🔴 {round(y_pred[0], 2)}%"
+    else:
+        prediction += f"🟢 {round(y_pred[1], 2)}%"
+
+    return prediction
