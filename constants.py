@@ -1,4 +1,5 @@
 import logging
+import pickle
 import sys
 import pymongo
 
@@ -94,6 +95,9 @@ pro_players_col = mydb["proplayers"]
 users_col = mydb["users"]
 chats_col = mydb["chats"]
 fav_players_col = mydb["fav_players"]
+
+with open('models/et_classifier.pkl', 'rb') as f:
+    ET_CLASSIFIER = pickle.load(f)
 
 kda_obj = {
     "KILLS": "kills",
