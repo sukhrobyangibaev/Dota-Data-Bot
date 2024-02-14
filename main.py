@@ -18,7 +18,7 @@ from main_menu.admin import send_admin_message, admin
 from main_menu.fav_players import get_new_player, get_players_order, add_new_player, type_delete_number, \
     favourite_players, type_choose_number, get_chosen_players_order
 from main_menu.live import live
-from main_menu.live_league import live_league, select_league_match
+from main_menu.live_league import live_league, select_league_match, league_back, league_refresh
 from main_menu.matches import matches, get_match_id
 from main_menu.players_menu import check_account_id, save_account_id, player_menu, \
     type_account_id, wl, recent_matches, player_heroes_stats, peers, totals, \
@@ -49,6 +49,10 @@ def main() -> None:
                 MessageHandler(filters.Regex("^MAIN MENU$"), main_menu)
             ],
             LIVE_LEAGUE: [CallbackQueryHandler(select_league_match)],
+            SELECTED_LEAGUE_MATCH: [
+                CallbackQueryHandler(league_back, pattern="^back$"),
+                CallbackQueryHandler(league_refresh, pattern="^refresh$")
+            ],
             TYPING_MATCH_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_match_id)],
             TYPE_PRO_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_pro_player_name)],
             ADD_NEW_PLAYER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_new_player)],
