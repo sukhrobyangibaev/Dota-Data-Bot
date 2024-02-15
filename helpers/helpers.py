@@ -268,7 +268,7 @@ def get_league_match_features(match):
     radiant_net_worth = 0
     dire_net_worth = 0
 
-    for i, player in enumerate(match["scoreboard"]["radiant"]["players"]):
+    for player in match["scoreboard"]["radiant"]["players"]:
         features.append(player["kills"])
         features.append(player["death"])
         features.append(player["assists"])
@@ -287,7 +287,7 @@ def get_league_match_features(match):
 
         radiant_net_worth += player["net_worth"]
 
-    for i, player in enumerate(match["scoreboard"]["dire"]["players"]):
+    for player in match["scoreboard"]["dire"]["players"]:
         features.append(player["kills"])
         features.append(player["death"])
         features.append(player["assists"])
@@ -311,7 +311,9 @@ def get_league_match_features(match):
     return np.array([features])
 
 
-def predict_league_match_result(X):
+def predict_league_match_result(match):
+    X = get_league_match_features(match)
+
     prediction = 'prediction: '
 
     y_pred = ET_CLASSIFIER.predict_proba(X)[0]

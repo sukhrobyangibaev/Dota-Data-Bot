@@ -61,9 +61,7 @@ async def select_league_match(
 
         match_info = get_league_match_info(entry)
 
-        X = get_league_match_features(entry)
-        
-        prediction = predict_league_match_result(X)
+        prediction = predict_league_match_result(entry)
 
     keyboard = InlineKeyboardMarkup(
         [[InlineKeyboardButton("🔙", callback_data='back'),
@@ -102,27 +100,21 @@ async def league_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 async def league_refresh(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text('refreshing') #TODO remove keyboard while refreshing
+    await query.edit_message_text('refreshing')
 
     match_id = context.chat_data['selected_league_match_id']
 
     response = requests.get(LEAGUE_GAMES_URL, params={"key": KEY})
     res_json = response.json()
 
-    print(type(match_id), match_id)
-
     for entry in res_json["result"]["games"]:
         if str(entry["match_id"]) != match_id:
             continue
-        print('found')
 
         match_info = get_league_match_info(entry)
-
-        X = get_league_match_features(entry)
         
-        prediction = predict_league_match_result(X)
+        prediction = predict_league_match_result(entry)
     
-    print(match_info, prediction)
     keyboard = InlineKeyboardMarkup(
         [[InlineKeyboardButton("🔙", callback_data='back'),
           InlineKeyboardButton("🔃", callback_data='refresh')]]
