@@ -230,14 +230,91 @@ def get_league_match_info(match) -> str:
     radiant_score = match["scoreboard"]["radiant"]["score"]
     dire_score = match["scoreboard"]["dire"]["score"]
 
+    match_id = match["match_id"]
+    league_id = match["league_id"]
+    league_node_id = match["league_node_id"]
+    spectators = match["spectators"]
+    stream_delay_s = match["stream_delay_s"]
+    radiant_series_wins = match["radiant_series_wins"]
+    dire_series_wins = match["dire_series_wins"]
+    series_type = match["series_type"]
+
+    radiant_tower_state = match['scoreboard']['radiant']['tower_state']
+    radiant_barracks_state = match['scoreboard']['radiant']['barracks_state']
+    radiant_picks = [pick['hero_id'] for pick in match['scoreboard']['radiant']['picks']]
+    radiant_net_worth = sum(player['net_worth'] for player in match['scoreboard']['radiant']['players'])
+    radiant_xp_per_min = sum(player['xp_per_min'] for player in match['scoreboard']['radiant']['players'])
+
+    dire_tower_state = match['scoreboard']['dire']['tower_state']
+    dire_barracks_state = match['scoreboard']['dire']['barracks_state']
+    dire_picks = [pick['hero_id'] for pick in match['scoreboard']['dire']['picks']]
+    dire_net_worth = sum(player['net_worth'] for player in match['scoreboard']['dire']['players'])
+    dire_xp_per_min = sum(player['xp_per_min'] for player in match['scoreboard']['dire']['players'])
+
+    net_worth_lead = radiant_net_worth - dire_net_worth
+    net_worth_lead_str = ''
+    if net_worth_lead > 0:
+        net_worth_lead_str = '🟢 {}'.format(net_worth_lead)
+    elif net_worth_lead < 0:
+        net_worth_lead_str = '🔴 {}'.format(-net_worth_lead)
+
+    xp_per_min_lead = radiant_xp_per_min - dire_xp_per_min
+    xp_per_min_lead_str = ''
+    if xp_per_min_lead > 0:
+        xp_per_min_lead_str = '🟢 {}'.format(xp_per_min_lead)
+    elif xp_per_min_lead < 0:
+        xp_per_min_lead_str = '🔴 {}'.format(-xp_per_min_lead)
     
     text = """🟢{} vs {}🔴
     duration: {}
     score: {} vs {}
+    net_worth_lead: {}
+    xp_per_min_lead: {}
+
+    match_id: {}
+    league_id: {}
+    league_node_id: {}
+    spectators: {}
+    stream_delay_s: {}
+    radiant_series_wins: {}
+    dire_series_wins: {}
+    series_type: {}
+
+    radiant_tower_state: {}
+    radiant_barracks_state: {}
+    radiant_picks: {}
+    radiant_net_worth: {}
+    radiant_xp_per_min: {}
+
+    dire_tower_state: {}
+    dire_barracks_state: {}
+    dire_picks: {}
+    dire_net_worth: {}
+    dire_xp_per_min: {}
     """.format(
             radiant, dire,
             duration,
-            radiant_score, dire_score
+            radiant_score, dire_score,
+            net_worth_lead_str,
+            xp_per_min_lead_str,
+            match_id,
+            league_id,
+            league_node_id,
+            spectators,
+            stream_delay_s,
+            radiant_series_wins,
+            dire_series_wins,
+            series_type,
+            radiant_tower_state,
+            radiant_barracks_state,
+            ' '.join(str(pick) for pick in radiant_picks),
+            radiant_net_worth,
+            radiant_xp_per_min,
+            dire_tower_state,
+            dire_barracks_state,
+            ' '.join(str(pick) for pick in dire_picks),
+            dire_net_worth,
+            dire_xp_per_min
         )
     
     return text
