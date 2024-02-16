@@ -208,13 +208,10 @@ def get_league_match_button_text(match) -> str:
         dire = match["dire_team"]["team_name"]
 
     h, m = divmod(match["scoreboard"]["duration"], 60)
-    duration = "{}:{:02}".format(int(h), int(m))
+    duration = "⌛️ {}:{:02}".format(int(h), int(m))
 
-    radiant_score = match["scoreboard"]["radiant"]["score"]
-    dire_score = match["scoreboard"]["dire"]["score"]
-
-    text = "{} [{}] 🆚 [{}] {} ⏲ {}".format(
-        radiant, radiant_score, dire_score, dire, duration
+    text = "{} 🆚 {} {:>10}".format(
+        radiant, dire, duration
     )
     return text
 
