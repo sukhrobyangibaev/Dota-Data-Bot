@@ -107,6 +107,11 @@ with open('models/hgb_classifier.pkl', 'rb') as f:
 with open('models/rf_classifier.pkl', 'rb') as f:
     RF_CLASSIFIER = pickle.load(f)
 
+with open('models/ann_standart_scaler.pkl', 'rb') as f:
+    ANN_STD_SCALER = pickle.load(f)
+with open('models/ann.pkl', 'rb') as f:
+    ANN_CLASSIFIER = pickle.load(f)
+
 kda_obj = {
     "KILLS": "kills",
     "DEATHS": "deaths",

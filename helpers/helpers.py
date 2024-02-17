@@ -2,7 +2,7 @@ from itertools import islice
 import numpy as np
 import requests
 
-from constants import AB_CLASSIFIER, ET_CLASSIFIER, GB_CLASSIFIER, HGB_CLASSIFIER, RF_CLASSIFIER, heroes_col, mydb, logger, pro_players_col
+from constants import AB_CLASSIFIER, ANN_CLASSIFIER, ANN_STD_SCALER, ET_CLASSIFIER, GB_CLASSIFIER, HGB_CLASSIFIER, RF_CLASSIFIER, heroes_col, mydb, logger, pro_players_col
 
 
 def mongodb_heroes_init() -> None:
@@ -445,20 +445,31 @@ def predict_league_match_result(match):
     else:
         avg_pred_str = f"🟢 {round(avg_pred[1] * 100)}%"
 
+    X_ss = ANN_STD_SCALER.transform(X)
+    ann_pred = ANN_CLASSIFIER.predict(X_ss)
+    print(ann_pred) #TODO convert ann_pred to int
+    ann_pred_str = ''
+    if ann_pred[0] > 0.5:
+        ann_pred_str = f"🟢 {np.round(ann_pred[0] * 100)}%"
+    else:
+        ann_pred_str = f"🔴 {np.round(ann_pred[0] * 100)}%"
+
     prediction = """predictions:
         Extra Tree Classifier: {}
         Random Forest: {}
         Hist Gradient Boosting: {}
         Gradient Boosting: {}
         Adaboost: {}
-
-        average: {}""".format(
+            average: {}
+        
+        ANN: {}""".format(
         et_pred_str, 
         rf_pred_str, 
         hgb_pred_str, 
         gb_pred_str, 
         ab_pred_str, 
-        avg_pred_str
+        avg_pred_str,
+        ann_pred_str
     )
 
     return prediction
