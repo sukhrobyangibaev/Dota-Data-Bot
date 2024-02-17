@@ -257,7 +257,7 @@ def get_league_match_info(match) -> str:
         dire_picks = [pick['hero_id'] for pick in match['scoreboard']['dire']['picks']]
     else:
         dire_picks = []
-        
+
     dire_net_worth = sum(player['net_worth'] for player in match['scoreboard']['dire']['players'])
     dire_xp_per_min = sum(player['xp_per_min'] for player in match['scoreboard']['dire']['players'])
 
@@ -435,11 +435,30 @@ def predict_league_match_result(match):
     else:
         ab_pred_str = f"🟢 {round(ab_pred[1], 2)}%"
 
-    prediction = '''predictions:
+    avg_pred = [
+        (et_pred[0] + rf_pred[0] + hgb_pred[0] + gb_pred[0] + ab_pred[0]) / 5,
+        (et_pred[1] + rf_pred[1] + hgb_pred[1] + gb_pred[1] + ab_pred[1]) / 5
+    ]
+    avg_pred_str = ''
+    if avg_pred[0] > avg_pred[1]:
+        avg_pred_str = f"🔴 {round(avg_pred[0], 2)}%"
+    else:
+        avg_pred_str = f"🟢 {round(avg_pred[1], 2)}%"
+
+    prediction = """predictions:
         Extra Tree Classifier: {}
         Random Forest: {}
         Hist Gradient Boosting: {}
         Gradient Boosting: {}
-        Adaboost: {}'''.format(et_pred_str, rf_pred_str, hgb_pred_str, gb_pred_str, ab_pred_str)
+        Adaboost: {}
+        
+        average: {}""".format(
+        et_pred_str, 
+        rf_pred_str, 
+        hgb_pred_str, 
+        gb_pred_str, 
+        ab_pred_str, 
+        avg_pred_str
+    )
 
     return prediction
