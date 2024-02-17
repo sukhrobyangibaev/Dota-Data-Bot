@@ -98,6 +98,14 @@ fav_players_col = mydb["fav_players"]
 
 with open('models/et_classifier.pkl', 'rb') as f:
     ET_CLASSIFIER = pickle.load(f)
+with open('models/ab_classifier.pkl', 'rb') as f:
+    AB_CLASSIFIER = pickle.load(f)
+with open('models/gb_classifier.pkl', 'rb') as f:
+    GB_CLASSIFIER = pickle.load(f)
+with open('models/hgb_classifier.pkl', 'rb') as f:
+    HGB_CLASSIFIER = pickle.load(f)
+with open('models/rf_classifier.pkl', 'rb') as f:
+    RF_CLASSIFIER = pickle.load(f)
 
 kda_obj = {
     "KILLS": "kills",
