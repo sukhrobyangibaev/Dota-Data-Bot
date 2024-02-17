@@ -403,37 +403,37 @@ def predict_league_match_result(match):
     et_pred = ET_CLASSIFIER.predict_proba(X)[0]
     et_pred_str = ''
     if et_pred[0] > et_pred[1]:
-        et_pred_str = f"🔴 {round(et_pred[0], 2)}%"
+        et_pred_str = f"🔴 {round(et_pred[0] * 100)}%"
     else:
-        et_pred_str = f"🟢 {round(et_pred[1], 2)}%"
+        et_pred_str = f"🟢 {round(et_pred[1] * 100)}%"
 
     rf_pred = RF_CLASSIFIER.predict_proba(X)[0]
     rf_pred_str = ''
     if rf_pred[0] > rf_pred[1]:
-        rf_pred_str = f"🔴 {round(rf_pred[0], 2)}%"
+        rf_pred_str = f"🔴 {round(rf_pred[0] * 100)}%"
     else:
-        rf_pred_str = f"🟢 {round(rf_pred[1], 2)}%"
+        rf_pred_str = f"🟢 {round(rf_pred[1] * 100)}%"
 
     hgb_pred = HGB_CLASSIFIER.predict_proba(X)[0]
     hgb_pred_str = ''
     if hgb_pred[0] > hgb_pred[1]:
-        hgb_pred_str = f"🔴 {round(hgb_pred[0], 2)}%"
+        hgb_pred_str = f"🔴 {round(hgb_pred[0] * 100)}%"
     else:
-        hgb_pred_str = f"🟢 {round(hgb_pred[1], 2)}%"
+        hgb_pred_str = f"🟢 {round(hgb_pred[1] * 100)}%"
 
     gb_pred = GB_CLASSIFIER.predict_proba(X)[0]
     gb_pred_str = ''
     if gb_pred[0] > gb_pred[1]:
-        gb_pred_str = f"🔴 {round(gb_pred[0], 2)}%"
+        gb_pred_str = f"🔴 {round(gb_pred[0] * 100)}%"
     else:
-        gb_pred_str = f"🟢 {round(gb_pred[1], 2)}%"
+        gb_pred_str = f"🟢 {round(gb_pred[1] * 100)}%"
 
     ab_pred = AB_CLASSIFIER.predict_proba(X)[0]
     ab_pred_str = ''
     if ab_pred[0] > ab_pred[1]:
-        ab_pred_str = f"🔴 {round(ab_pred[0], 2)}%"
+        ab_pred_str = f"🔴 {round(ab_pred[0] * 100)}%"
     else:
-        ab_pred_str = f"🟢 {round(ab_pred[1], 2)}%"
+        ab_pred_str = f"🟢 {round(ab_pred[1] * 100)}%"
 
     avg_pred = [
         (et_pred[0] + rf_pred[0] + hgb_pred[0] + gb_pred[0] + ab_pred[0]) / 5,
@@ -441,9 +441,9 @@ def predict_league_match_result(match):
     ]
     avg_pred_str = ''
     if avg_pred[0] > avg_pred[1]:
-        avg_pred_str = f"🔴 {round(avg_pred[0], 2)}%"
+        avg_pred_str = f"🔴 {round(avg_pred[0] * 100)}%"
     else:
-        avg_pred_str = f"🟢 {round(avg_pred[1], 2)}%"
+        avg_pred_str = f"🟢 {round(avg_pred[1] * 100)}%"
 
     prediction = """predictions:
         Extra Tree Classifier: {}
@@ -451,7 +451,7 @@ def predict_league_match_result(match):
         Hist Gradient Boosting: {}
         Gradient Boosting: {}
         Adaboost: {}
-        
+
         average: {}""".format(
         et_pred_str, 
         rf_pred_str, 
