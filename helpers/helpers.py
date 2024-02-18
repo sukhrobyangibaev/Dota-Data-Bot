@@ -2,7 +2,7 @@ from itertools import islice
 import numpy as np
 import requests
 
-from constants import AB_CLASSIFIER, ANN_CLASSIFIER, ANN_STD_SCALER, ET_CLASSIFIER, GB_CLASSIFIER, HGB_CLASSIFIER, RF_CLASSIFIER, heroes_col, mydb, logger, pro_players_col
+from constants import ANN_CLASSIFIER, ANN_STD_SCALER, ET_CLASSIFIER, RF_CLASSIFIER, heroes_col, mydb, logger, pro_players_col
 
 
 def mongodb_heroes_init() -> None:
