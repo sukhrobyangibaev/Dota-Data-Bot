@@ -333,24 +333,12 @@ def get_league_match_features(match):
     features = []
 
     features.append(match["scoreboard"]["duration"])
-    features.append(match["radiant_series_wins"])
-    features.append(match["dire_series_wins"])
 
-    features.append(
-        match["scoreboard"]["radiant"]["score"]
-        - match["scoreboard"]["dire"]["score"]
-    )
-    features.append(
-        match["scoreboard"]["radiant"]["tower_state"]
-        - match["scoreboard"]["dire"]["tower_state"]
-    )
-    features.append(
-        match["scoreboard"]["radiant"]["barracks_state"]
-        - match["scoreboard"]["dire"]["barracks_state"]
-    )
+    features.append(match["scoreboard"]['radiant']["tower_state"])
+    features.append(match["scoreboard"]['dire']["tower_state"])
 
-    radiant_net_worth = 0
-    dire_net_worth = 0
+    features.append(match["scoreboard"]['radiant']["barracks_state"])
+    features.append(match["scoreboard"]['dire']["barracks_state"])
 
     for player in match["scoreboard"]["radiant"]["players"]:
         features.append(player["kills"])
@@ -369,8 +357,6 @@ def get_league_match_features(match):
         features.append(player["item5"])
         features.append(player["net_worth"])
 
-        radiant_net_worth += player["net_worth"]
-
     for player in match["scoreboard"]["dire"]["players"]:
         features.append(player["kills"])
         features.append(player["death"])
@@ -388,17 +374,11 @@ def get_league_match_features(match):
         features.append(player["item5"])
         features.append(player["net_worth"])
 
-        dire_net_worth += player["net_worth"]
-
-    features.append(radiant_net_worth - dire_net_worth)
-
     return np.array([features])
 
 
 def predict_league_match_result(match):
     X = get_league_match_features(match)
-
-    prediction = 'predictions: '
 
     et_pred = ET_CLASSIFIER.predict_proba(X)[0]
     et_pred_str = ''
@@ -414,36 +394,6 @@ def predict_league_match_result(match):
     else:
         rf_pred_str = f"🟢 {round(rf_pred[1] * 100)}%"
 
-    hgb_pred = HGB_CLASSIFIER.predict_proba(X)[0]
-    hgb_pred_str = ''
-    if hgb_pred[0] > hgb_pred[1]:
-        hgb_pred_str = f"🔴 {round(hgb_pred[0] * 100)}%"
-    else:
-        hgb_pred_str = f"🟢 {round(hgb_pred[1] * 100)}%"
-
-    gb_pred = GB_CLASSIFIER.predict_proba(X)[0]
-    gb_pred_str = ''
-    if gb_pred[0] > gb_pred[1]:
-        gb_pred_str = f"🔴 {round(gb_pred[0] * 100)}%"
-    else:
-        gb_pred_str = f"🟢 {round(gb_pred[1] * 100)}%"
-
-    ab_pred = AB_CLASSIFIER.predict_proba(X)[0]
-    ab_pred_str = ''
-    if ab_pred[0] > ab_pred[1]:
-        ab_pred_str = f"🔴 {round(ab_pred[0] * 100)}%"
-    else:
-        ab_pred_str = f"🟢 {round(ab_pred[1] * 100)}%"
-
-    avg_pred = [
-        (et_pred[0] + rf_pred[0] + hgb_pred[0] + gb_pred[0] + ab_pred[0]) / 5,
-        (et_pred[1] + rf_pred[1] + hgb_pred[1] + gb_pred[1] + ab_pred[1]) / 5
-    ]
-    avg_pred_str = ''
-    if avg_pred[0] > avg_pred[1]:
-        avg_pred_str = f"🔴 {round(avg_pred[0] * 100)}%"
-    else:
-        avg_pred_str = f"🟢 {round(avg_pred[1] * 100)}%"
 
     X_ss = ANN_STD_SCALER.transform(X)
     ann_pred = ANN_CLASSIFIER.predict(X_ss)
@@ -457,18 +407,9 @@ def predict_league_match_result(match):
     prediction = """predictions:
         Extra Tree Classifier: {}
         Random Forest: {}
-        Hist Gradient Boosting: {}
-        Gradient Boosting: {}
-        Adaboost: {}
-            average: {}
-        
         ANN: {}""".format(
         et_pred_str, 
         rf_pred_str, 
-        hgb_pred_str, 
-        gb_pred_str, 
-        ab_pred_str, 
-        avg_pred_str,
         ann_pred_str
     )
 
