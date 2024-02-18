@@ -4,3 +4,4 @@ venv/
 dota_data_bot.log
 .env
 *.pkl
+.DS_Store
