@@ -2,7 +2,7 @@ from itertools import islice
 import numpy as np
 import requests
 
-from constants import ANN_CLASSIFIER, ANN_STD_SCALER, ET_CLASSIFIER, RF_CLASSIFIER, heroes_col, mydb, logger, pro_players_col
+from constants import AB_CLASSIFIER, C45_CLASSIFIER, CART_CLASSIFIER, ET_CLASSIFIER, GB_CLASSIFIER, HGB_CLASSIFIER, RF_CLASSIFIER, heroes_col, mydb, logger, pro_players_col
 
 
 def mongodb_heroes_init() -> None:
@@ -276,55 +276,27 @@ def get_league_match_info(match) -> str:
         xp_per_min_lead_str = '🔴 {}'.format(-xp_per_min_lead)
     
     text = """🟢{} vs {}🔴
-    duration: {}
-    score: {} vs {}
-    net_worth_lead: {}
-    xp_per_min_lead: {}
 
-    match_id: {}
-    league_id: {}
-    league_node_id: {}
-    spectators: {}
-    stream_delay_s: {}
-    radiant_series_wins: {}
-    dire_series_wins: {}
-    series_type: {}
+    ⏳ Duration: {}
+    🔪 Kills: {} vs {}
+    📈 Net Worth Lead: {}
+    📈 XP Lead: {}
 
-    radiant_tower_state: {}
-    radiant_barracks_state: {}
-    radiant_picks: {}
-    radiant_net_worth: {}
-    radiant_xp_per_min: {}
+    Radiant Tower State: {}
+    Radiant Barracks State: {}
 
-    dire_tower_state: {}
-    dire_barracks_state: {}
-    dire_picks: {}
-    dire_net_worth: {}
-    dire_xp_per_min: {}
+    Dire Tower State: {}
+    Dire Barracks State: {}
     """.format(
             radiant, dire,
             duration,
             radiant_score, dire_score,
             net_worth_lead_str,
             xp_per_min_lead_str,
-            match_id,
-            league_id,
-            league_node_id,
-            spectators,
-            stream_delay_s,
-            radiant_series_wins,
-            dire_series_wins,
-            series_type,
             radiant_tower_state,
             radiant_barracks_state,
-            ' '.join(str(pick) for pick in radiant_picks),
-            radiant_net_worth,
-            radiant_xp_per_min,
             dire_tower_state,
             dire_barracks_state,
-            ' '.join(str(pick) for pick in dire_picks),
-            dire_net_worth,
-            dire_xp_per_min
         )
     
     return text
@@ -394,23 +366,58 @@ def predict_league_match_result(match):
     else:
         rf_pred_str = f"🟢 {round(rf_pred[1] * 100)}%"
 
-
-    X_ss = ANN_STD_SCALER.transform(X)
-    ann_pred = ANN_CLASSIFIER.predict(X_ss)
-    print(ann_pred) #TODO convert ann_pred to int
-    ann_pred_str = ''
-    if ann_pred[0] > 0.5:
-        ann_pred_str = f"🟢 {np.round(ann_pred[0] * 100)}%"
+    hgb_pred = HGB_CLASSIFIER.predict_proba(X)[0]
+    hgb_pred_str = ''
+    if hgb_pred[0] > hgb_pred[1]:
+        hgb_pred_str = f"🔴 {round(hgb_pred[0] * 100)}%"
     else:
-        ann_pred_str = f"🔴 {np.round(ann_pred[0] * 100)}%"
+        hgb_pred_str = f"🟢 {round(hgb_pred[1] * 100)}%"
 
-    prediction = """predictions:
+    gb_pred = GB_CLASSIFIER.predict_proba(X)[0]
+    gb_pred_str = ''
+    if gb_pred[0] > gb_pred[1]:
+        gb_pred_str = f"🔴 {round(gb_pred[0] * 100)}%"
+    else:
+        gb_pred_str = f"🟢 {round(gb_pred[1] * 100)}%"
+
+    cart_pred = CART_CLASSIFIER.predict_proba(X)[0]
+    cart_pred_str = ''
+    if cart_pred[0] > cart_pred[1]:
+        cart_pred_str = f"🔴 {round(cart_pred[0] * 100)}%"
+    else:
+        cart_pred_str = f"🟢 {round(cart_pred[1] * 100)}%"
+
+    c45_pred = C45_CLASSIFIER.predict_proba(X)[0]
+    c45_pred_str = ''
+    if c45_pred[0] > c45_pred[1]:
+        c45_pred_str = f"🔴 {round(c45_pred[0] * 100)}%"
+    else:
+        c45_pred_str = f"🟢 {round(c45_pred[1] * 100)}%"
+
+    ab_pred = AB_CLASSIFIER.predict_proba(X)[0]
+    ab_pred_str = ''
+    if ab_pred[0] > ab_pred[1]:
+        ab_pred_str = f"🔴 {round(ab_pred[0] * 100)}%"
+    else:
+        ab_pred_str = f"🟢 {round(ab_pred[1] * 100)}%"
+
+
+    prediction = """
+    🔮Predictions:
         Extra Tree Classifier: {}
         Random Forest: {}
-        ANN: {}""".format(
+        Hist Gradient Boosting: {}
+        Gradient Boosting: {}
+        CART: {}
+        C4.5: {}
+        Adaptive Boosting: {}""".format(
         et_pred_str, 
         rf_pred_str, 
-        ann_pred_str
+        hgb_pred_str,
+        gb_pred_str,
+        cart_pred_str,
+        c45_pred_str,
+        ab_pred_str
     )
 
     return prediction

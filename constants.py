@@ -100,11 +100,16 @@ with open('models/et_classifier.pkl', 'rb') as f:
     ET_CLASSIFIER = pickle.load(f)
 with open('models/rf_classifier.pkl', 'rb') as f:
     RF_CLASSIFIER = pickle.load(f)
-    
-with open('models/ann_standart_scaler.pkl', 'rb') as f:
-    ANN_STD_SCALER = pickle.load(f)
-with open('models/ann.pkl', 'rb') as f:
-    ANN_CLASSIFIER = pickle.load(f)
+with open('models/hgb_classifier.pkl', 'rb') as f:
+    HGB_CLASSIFIER = pickle.load(f)
+with open('models/gb_classifier.pkl', 'rb') as f:
+    GB_CLASSIFIER = pickle.load(f)
+with open('models/cart_classifier.pkl', 'rb') as f:
+    CART_CLASSIFIER = pickle.load(f)
+with open('models/cart_classifier.pkl', 'rb') as f:
+    C45_CLASSIFIER = pickle.load(f)
+with open('models/cart_classifier.pkl', 'rb') as f:
+    AB_CLASSIFIER = pickle.load(f)  
 
 kda_obj = {
     "KILLS": "kills",
