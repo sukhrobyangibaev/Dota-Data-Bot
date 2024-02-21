@@ -380,6 +380,14 @@ def predict_league_match_result(match):
     else:
         gb_pred_str = f"🟢 {round(gb_pred[1] * 100)}%"
 
+    avg_dire = (et_pred[0] + rf_pred[0] + hgb_pred[0] + gb_pred[0]) * 25
+    avg_radiant = (et_pred[1] + rf_pred[1] + hgb_pred[1] + gb_pred[1]) * 25
+    avg_str = ''
+    if avg_dire > avg_radiant:
+        avg_str = f"🔴 {round(avg_dire)}%"
+    else:
+        avg_str = f"🟢 {round(avg_radiant)}%"
+
     cart_pred = CART_CLASSIFIER.predict_proba(X)[0]
     cart_pred_str = ''
     if cart_pred[0] > cart_pred[1]:
@@ -408,6 +416,7 @@ def predict_league_match_result(match):
         Random Forest: {}
         Hist Gradient Boosting: {}
         Gradient Boosting: {}
+            Average: {}
         CART: {}
         C4.5: {}
         Adaptive Boosting: {}""".format(
@@ -415,6 +424,7 @@ def predict_league_match_result(match):
         rf_pred_str, 
         hgb_pred_str,
         gb_pred_str,
+        avg_str,
         cart_pred_str,
         c45_pred_str,
         ab_pred_str
