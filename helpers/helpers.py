@@ -306,11 +306,19 @@ def get_league_match_features(match):
 
     features.append(match["scoreboard"]["duration"])
 
-    features.append(match["scoreboard"]['radiant']["tower_state"])
-    features.append(match["scoreboard"]['dire']["tower_state"])
+    rts = match["scoreboard"]['radiant']["tower_state"]
+    for t in format(rts, 'b'):
+        features.append(t)
+    dts = match["scoreboard"]['dire']["tower_state"]
+    for t in format(dts, 'b'):
+        features.append(t)
 
-    features.append(match["scoreboard"]['radiant']["barracks_state"])
-    features.append(match["scoreboard"]['dire']["barracks_state"])
+    rbs = match["scoreboard"]['radiant']["barracks_state"]
+    for t in format(rbs, 'b'):
+        features.append(t)
+    dbs = match["scoreboard"]['dire']["barracks_state"]
+    for t in format(dbs, 'b'):
+        features.append(t)
 
     for player in match["scoreboard"]["radiant"]["players"]:
         features.append(player["kills"])
