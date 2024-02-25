@@ -22,6 +22,7 @@ KEY = os.getenv("STEAM_KEY")
 
 
 async def live_league(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    #TODO add back and refresh reply keyboards
     buttons = []
 
     response = requests.get(LEAGUE_GAMES_URL, params={"key": KEY})
