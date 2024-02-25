@@ -272,8 +272,27 @@ def get_league_match_info(match) -> str:
     dire_series_wins = match["dire_series_wins"]
     series_type = match["series_type"]
 
-    radiant_tower_state = match["scoreboard"]["radiant"]["tower_state"]
-    radiant_barracks_state = match["scoreboard"]["radiant"]["barracks_state"]
+    trans_dict = str.maketrans("10", "◻◼")
+    rts = (
+        format(match["scoreboard"]["radiant"]["tower_state"], "b")
+        .zfill(11)
+        .translate(trans_dict)
+    )
+    dts = (
+        format(match["scoreboard"]["dire"]["tower_state"], "b")
+        .zfill(11)
+        .translate(trans_dict)
+    )
+    rbs = (
+        format(match["scoreboard"]["radiant"]["barracks_state"], "b")
+        .zfill(6)
+        .translate(trans_dict)
+    )
+    dbs = (
+        format(match["scoreboard"]["dire"]["barracks_state"], "b")
+        .zfill(6)
+        .translate(trans_dict)
+    )
 
     if "picks" in match["scoreboard"]["radiant"]:
         radiant_picks = [
@@ -289,8 +308,6 @@ def get_league_match_info(match) -> str:
         player["xp_per_min"] for player in match["scoreboard"]["radiant"]["players"]
     )
 
-    dire_tower_state = match["scoreboard"]["dire"]["tower_state"]
-    dire_barracks_state = match["scoreboard"]["dire"]["barracks_state"]
 
     if "picks" in match["scoreboard"]["dire"]:
         dire_picks = [pick["hero_id"] for pick in match["scoreboard"]["dire"]["picks"]]
@@ -325,11 +342,13 @@ def get_league_match_info(match) -> str:
     📈 Net Worth Lead: {}
     📈 XP Lead: {}
 
-    Radiant Tower State: {}
-    Radiant Barracks State: {}
-
-    Dire Tower State: {}
-    Dire Barracks State: {}
+    Tower State:\n
+    {}
+    {}
+    
+    Barracks State:
+    {}
+    {}
     """.format(
         radiant,
         dire,
@@ -338,10 +357,10 @@ def get_league_match_info(match) -> str:
         dire_score,
         net_worth_lead_str,
         xp_per_min_lead_str,
-        radiant_tower_state,
-        radiant_barracks_state,
-        dire_tower_state,
-        dire_barracks_state,
+        rts,
+        dts,
+        rbs,
+        dbs,
     )
 
     return text
