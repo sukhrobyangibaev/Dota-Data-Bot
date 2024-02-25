@@ -329,21 +329,23 @@ def get_league_match_info(match) -> str:
 
 def get_league_match_features(match):
     features = []
+    if not 5 == len(match["scoreboard"]["radiant"]["players"]) == len(match["scoreboard"]["dire"]["players"]):
+        return None
 
     features.append(match["scoreboard"]["duration"])
-
+    #TODO fill with zeros
     rts = match["scoreboard"]['radiant']["tower_state"]
-    for t in format(rts, 'b'):
+    for t in format(rts, 'b').zfill(11):
         features.append(t)
     dts = match["scoreboard"]['dire']["tower_state"]
-    for t in format(dts, 'b'):
+    for t in format(dts, 'b').zfill(11):
         features.append(t)
 
     rbs = match["scoreboard"]['radiant']["barracks_state"]
-    for t in format(rbs, 'b'):
+    for t in format(rbs, 'b').zfill(6):
         features.append(t)
     dbs = match["scoreboard"]['dire']["barracks_state"]
-    for t in format(dbs, 'b'):
+    for t in format(dbs, 'b').zfill(6):
         features.append(t)
 
     for player in match["scoreboard"]["radiant"]["players"]:
@@ -385,6 +387,9 @@ def get_league_match_features(match):
 
 def predict_league_match_result(match):
     X = get_league_match_features(match)
+
+    if X is None:
+        return 'error data'
 
     (
         et_pred_str,
