@@ -26,7 +26,10 @@ from main_menu.players_menu import check_account_id, save_account_id, player_men
 from main_menu.players_menu.players_matches import next_hero_list, choose_hero_to_sort, player_matches, sort_by_hero, \
     sort_by_kda, sort_by_wl
 from main_menu.pro_player import type_pro_player, get_pro_player_name
+from warnings import filterwarnings
+from telegram.warnings import PTBUserWarning
 
+filterwarnings(action="ignore", message=r".*CallbackQueryHandler", category=PTBUserWarning)
 load_dotenv()
 
 def main() -> None:
