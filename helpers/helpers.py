@@ -67,9 +67,15 @@ def get_picks(teams, picks_bans) -> str:
         # logger.info(heroes_col.find_one({"id": picks["hero_id"]}).get("localized_name"))
         if picks["is_pick"]:
             if picks["team"]:
-                dire_picks += heroes_col.find_one({"id": picks["hero_id"]}).get("localized_name") + ", "
+                dire_picks += (
+                    heroes_col.find_one({"id": picks["hero_id"]}).get("localized_name")
+                    + ", "
+                )
             else:
-                radiant_picks += heroes_col.find_one({"id": picks["hero_id"]}).get("localized_name") + ", "
+                radiant_picks += (
+                    heroes_col.find_one({"id": picks["hero_id"]}).get("localized_name")
+                    + ", "
+                )
     return radiant_picks[:-2] + "\n" + dire_picks[:-2]
 
 
@@ -94,7 +100,13 @@ def matches_to_str(res_json) -> str:
     for match in res_json:
         text += win_or_loose(match["player_slot"], match["radiant_win"]) + " with "
         text += get_hero_name(match["hero_id"]) + ", "
-        text += "K/D/A - " + "/".join([str(match["kills"]), str(match["deaths"]), str(match["assists"])]) + "\n"
+        text += (
+            "K/D/A - "
+            + "/".join(
+                [str(match["kills"]), str(match["deaths"]), str(match["assists"])]
+            )
+            + "\n"
+        )
     return text
 
 
@@ -114,12 +126,7 @@ def hero_stats(res_json):
         winrate = count_winrate(hero["games"], hero["win"])
         won_percent.append(winrate)
         heroes.append(get_hero_name(int(hero["hero_id"]))[:5])
-    ans = {
-        "heroes": heroes,
-        "games": games,
-        "won": won,
-        "won_percent": won_percent
-    }
+    ans = {"heroes": heroes, "games": games, "won": won, "won_percent": won_percent}
     return ans
 
 
@@ -138,21 +145,18 @@ def peers_to_dict(res_json):
         won_percent.append(winrate)
         if counter == 10:
             break
-    ans = {
-        "players": players,
-        "games": games,
-        "won": won,
-        "won_percent": won_percent
-    }
+    ans = {"players": players, "games": games, "won": won, "won_percent": won_percent}
     return ans
 
 
 def totals_to_text(res_json) -> str:
-    text = f"K/D/A - {res_json[0]['sum']}/{res_json[1]['sum']}/{res_json[2]['sum']}\n" \
-           f"Last hits - {res_json[6]['sum']}\n" \
-           f"Denies - {res_json[7]['sum']}\n" \
-           f"Hours played - {int(res_json[9]['sum'] / 3600)}\n" \
-           f"Courier kills - {res_json[17]['sum']}"
+    text = (
+        f"K/D/A - {res_json[0]['sum']}/{res_json[1]['sum']}/{res_json[2]['sum']}\n"
+        f"Last hits - {res_json[6]['sum']}\n"
+        f"Denies - {res_json[7]['sum']}\n"
+        f"Hours played - {int(res_json[9]['sum'] / 3600)}\n"
+        f"Courier kills - {res_json[17]['sum']}"
+    )
     return text
 
 
@@ -178,7 +182,7 @@ def get_wordcloud_list(res_json):
 def pro_players_to_text(players) -> str:
     text = ""
     for player in players:
-        text += "\n\nname: " + player["name"].replace('<', '')
+        text += "\n\nname: " + player["name"].replace("<", "")
         if player["team_name"]:
             text += "\nteam: " + player["team_name"]
         if player["country_code"]:
@@ -193,7 +197,9 @@ def get_pro_matches(res_json) -> str:
     for match in res_json:
         if match["league_id"] and not match["deactivate_time"]:
             text += match["team_name_radiant"] + " " + str(match["radiant_score"])
-            text += " vs " + str(match["dire_score"]) + " " + match["team_name_dire"] + "\n"
+            text += (
+                " vs " + str(match["dire_score"]) + " " + match["team_name_dire"] + "\n"
+            )
     return text
 
 
@@ -202,8 +208,9 @@ def get_public_matches(res_json, favourite_players) -> str:
     is_pro_player = False
     for match in res_json:
         if not match["deactivate_time"]:
-            text += "<code>{}</code> Radiant {} : {} Dire\n".format(match["match_id"], match["radiant_score"],
-                                                                    match["dire_score"])
+            text += "<code>{}</code> Radiant {} : {} Dire\n".format(
+                match["match_id"], match["radiant_score"], match["dire_score"]
+            )
             if match["players"]:
                 for player in match["players"]:
                     if "is_pro" in player:
@@ -212,9 +219,11 @@ def get_public_matches(res_json, favourite_players) -> str:
                             for fav_players in favourite_players["players"]:
                                 if player["account_id"] in fav_players.values():
                                     text += "⭐"
-                        text += "<code>{}</code> {} - {}\n".format(player["account_id"],
-                                                                   player["name"].replace('<', ''),
-                                                                   get_hero_name(player["hero_id"]))
+                        text += "<code>{}</code> {} - {}\n".format(
+                            player["account_id"],
+                            player["name"].replace("<", ""),
+                            get_hero_name(player["hero_id"]),
+                        )
             text += "\n"
     if is_pro_player:
         return text
@@ -223,8 +232,8 @@ def get_public_matches(res_json, favourite_players) -> str:
 
 
 def get_league_match_button_text(match) -> str:
-    if 'scoreboard' not in match or match['scoreboard']['duration'] == 0:
-        return ''
+    if "scoreboard" not in match or match["scoreboard"]["duration"] == 0:
+        return ""
 
     radiant = dire = "unknown"
 
@@ -236,9 +245,7 @@ def get_league_match_button_text(match) -> str:
     h, m = divmod(match["scoreboard"]["duration"], 60)
     duration = "⌛️ {}:{:02}".format(int(h), int(m))
 
-    text = "{} 🆚 {} {:>10}".format(
-        radiant, dire, duration
-    )
+    text = "{} 🆚 {} {:>10}".format(radiant, dire, duration)
     return text
 
 
@@ -265,42 +272,52 @@ def get_league_match_info(match) -> str:
     dire_series_wins = match["dire_series_wins"]
     series_type = match["series_type"]
 
-    radiant_tower_state = match['scoreboard']['radiant']['tower_state']
-    radiant_barracks_state = match['scoreboard']['radiant']['barracks_state']
+    radiant_tower_state = match["scoreboard"]["radiant"]["tower_state"]
+    radiant_barracks_state = match["scoreboard"]["radiant"]["barracks_state"]
 
-    if 'picks' in match['scoreboard']['radiant']:
-        radiant_picks = [pick['hero_id'] for pick in match['scoreboard']['radiant']['picks']]
+    if "picks" in match["scoreboard"]["radiant"]:
+        radiant_picks = [
+            pick["hero_id"] for pick in match["scoreboard"]["radiant"]["picks"]
+        ]
     else:
         radiant_picks = []
 
-    radiant_net_worth = sum(player['net_worth'] for player in match['scoreboard']['radiant']['players'])
-    radiant_xp_per_min = sum(player['xp_per_min'] for player in match['scoreboard']['radiant']['players'])
+    radiant_net_worth = sum(
+        player["net_worth"] for player in match["scoreboard"]["radiant"]["players"]
+    )
+    radiant_xp_per_min = sum(
+        player["xp_per_min"] for player in match["scoreboard"]["radiant"]["players"]
+    )
 
-    dire_tower_state = match['scoreboard']['dire']['tower_state']
-    dire_barracks_state = match['scoreboard']['dire']['barracks_state']
+    dire_tower_state = match["scoreboard"]["dire"]["tower_state"]
+    dire_barracks_state = match["scoreboard"]["dire"]["barracks_state"]
 
-    if 'picks' in match['scoreboard']['dire']:
-        dire_picks = [pick['hero_id'] for pick in match['scoreboard']['dire']['picks']]
+    if "picks" in match["scoreboard"]["dire"]:
+        dire_picks = [pick["hero_id"] for pick in match["scoreboard"]["dire"]["picks"]]
     else:
         dire_picks = []
 
-    dire_net_worth = sum(player['net_worth'] for player in match['scoreboard']['dire']['players'])
-    dire_xp_per_min = sum(player['xp_per_min'] for player in match['scoreboard']['dire']['players'])
+    dire_net_worth = sum(
+        player["net_worth"] for player in match["scoreboard"]["dire"]["players"]
+    )
+    dire_xp_per_min = sum(
+        player["xp_per_min"] for player in match["scoreboard"]["dire"]["players"]
+    )
 
     net_worth_lead = radiant_net_worth - dire_net_worth
-    net_worth_lead_str = ''
+    net_worth_lead_str = ""
     if net_worth_lead > 0:
-        net_worth_lead_str = '🟢 {}'.format(net_worth_lead)
+        net_worth_lead_str = "🟢 {}".format(net_worth_lead)
     elif net_worth_lead < 0:
-        net_worth_lead_str = '🔴 {}'.format(-net_worth_lead)
+        net_worth_lead_str = "🔴 {}".format(-net_worth_lead)
 
     xp_per_min_lead = radiant_xp_per_min - dire_xp_per_min
-    xp_per_min_lead_str = ''
+    xp_per_min_lead_str = ""
     if xp_per_min_lead > 0:
-        xp_per_min_lead_str = '🟢 {}'.format(xp_per_min_lead)
+        xp_per_min_lead_str = "🟢 {}".format(xp_per_min_lead)
     elif xp_per_min_lead < 0:
-        xp_per_min_lead_str = '🔴 {}'.format(-xp_per_min_lead)
-    
+        xp_per_min_lead_str = "🔴 {}".format(-xp_per_min_lead)
+
     text = """🟢{} vs {}🔴
 
     ⏳ Duration: {}
@@ -314,38 +331,45 @@ def get_league_match_info(match) -> str:
     Dire Tower State: {}
     Dire Barracks State: {}
     """.format(
-            radiant, dire,
-            duration,
-            radiant_score, dire_score,
-            net_worth_lead_str,
-            xp_per_min_lead_str,
-            radiant_tower_state,
-            radiant_barracks_state,
-            dire_tower_state,
-            dire_barracks_state,
-        )
-    
+        radiant,
+        dire,
+        duration,
+        radiant_score,
+        dire_score,
+        net_worth_lead_str,
+        xp_per_min_lead_str,
+        radiant_tower_state,
+        radiant_barracks_state,
+        dire_tower_state,
+        dire_barracks_state,
+    )
+
     return text
+
 
 def get_league_match_features(match):
     features = []
-    if not 5 == len(match["scoreboard"]["radiant"]["players"]) == len(match["scoreboard"]["dire"]["players"]):
+    if (
+        not 5
+        == len(match["scoreboard"]["radiant"]["players"])
+        == len(match["scoreboard"]["dire"]["players"])
+    ):
         return None
 
     features.append(match["scoreboard"]["duration"])
-    #TODO fill with zeros
-    rts = match["scoreboard"]['radiant']["tower_state"]
-    for t in format(rts, 'b').zfill(11):
+
+    rts = match["scoreboard"]["radiant"]["tower_state"]
+    for t in format(rts, "b").zfill(11):
         features.append(t)
-    dts = match["scoreboard"]['dire']["tower_state"]
-    for t in format(dts, 'b').zfill(11):
+    dts = match["scoreboard"]["dire"]["tower_state"]
+    for t in format(dts, "b").zfill(11):
         features.append(t)
 
-    rbs = match["scoreboard"]['radiant']["barracks_state"]
-    for t in format(rbs, 'b').zfill(6):
+    rbs = match["scoreboard"]["radiant"]["barracks_state"]
+    for t in format(rbs, "b").zfill(6):
         features.append(t)
-    dbs = match["scoreboard"]['dire']["barracks_state"]
-    for t in format(dbs, 'b').zfill(6):
+    dbs = match["scoreboard"]["dire"]["barracks_state"]
+    for t in format(dbs, "b").zfill(6):
         features.append(t)
 
     for player in match["scoreboard"]["radiant"]["players"]:
@@ -389,7 +413,7 @@ def predict_league_match_result(match):
     X = get_league_match_features(match)
 
     if X is None:
-        return 'error data'
+        return "error data"
 
     (
         et_pred_str,
@@ -400,7 +424,16 @@ def predict_league_match_result(match):
         cart_pred_str,
         c45_pred_str,
         ab_pred_str,
-    ) = "", "", "", "", "", "", "", ""
+    ) = (
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    )
 
     if float(X[0][0]) <= 600:
         et_pred = M10_ET_CLASSIFIER.predict_proba(X)[0]
@@ -562,14 +595,14 @@ def predict_league_match_result(match):
         CART: {}
         C4.5: {}
         Adaptive Boosting: {}""".format(
-        et_pred_str, 
-        rf_pred_str, 
+        et_pred_str,
+        rf_pred_str,
         hgb_pred_str,
         gb_pred_str,
         avg_str,
         cart_pred_str,
         c45_pred_str,
-        ab_pred_str
+        ab_pred_str,
     )
 
     return prediction
