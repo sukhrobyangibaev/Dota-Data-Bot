@@ -2,7 +2,33 @@ from itertools import islice
 import numpy as np
 import requests
 
-from constants import AB_CLASSIFIER, C45_CLASSIFIER, CART_CLASSIFIER, ET_CLASSIFIER, GB_CLASSIFIER, HGB_CLASSIFIER, RF_CLASSIFIER, heroes_col, mydb, logger, pro_players_col
+from constants import (
+    M10_AB_CLASSIFIER,
+    M10_C45_CLASSIFIER,
+    M10_CART_CLASSIFIER,
+    M10_ET_CLASSIFIER,
+    M10_GB_CLASSIFIER,
+    M10_HGB_CLASSIFIER,
+    M10_RF_CLASSIFIER,
+    M20_AB_CLASSIFIER,
+    M20_C45_CLASSIFIER,
+    M20_CART_CLASSIFIER,
+    M20_ET_CLASSIFIER,
+    M20_GB_CLASSIFIER,
+    M20_HGB_CLASSIFIER,
+    M20_RF_CLASSIFIER,
+    M30_AB_CLASSIFIER,
+    M30_C45_CLASSIFIER,
+    M30_CART_CLASSIFIER,
+    M30_ET_CLASSIFIER,
+    M30_GB_CLASSIFIER,
+    M30_HGB_CLASSIFIER,
+    M30_RF_CLASSIFIER,
+    heroes_col,
+    mydb,
+    logger,
+    pro_players_col,
+)
 
 
 def mongodb_heroes_init() -> None:
@@ -360,63 +386,166 @@ def get_league_match_features(match):
 def predict_league_match_result(match):
     X = get_league_match_features(match)
 
-    et_pred = ET_CLASSIFIER.predict_proba(X)[0]
-    et_pred_str = ''
-    if et_pred[0] > et_pred[1]:
-        et_pred_str = f"🔴 {round(et_pred[0] * 100)}%"
-    else:
-        et_pred_str = f"🟢 {round(et_pred[1] * 100)}%"
+    (
+        et_pred_str,
+        rf_pred_str,
+        hgb_pred_str,
+        gb_pred_str,
+        avg_str,
+        cart_pred_str,
+        c45_pred_str,
+        ab_pred_str,
+    ) = "", "", "", "", "", "", "", ""
 
-    rf_pred = RF_CLASSIFIER.predict_proba(X)[0]
-    rf_pred_str = ''
-    if rf_pred[0] > rf_pred[1]:
-        rf_pred_str = f"🔴 {round(rf_pred[0] * 100)}%"
-    else:
-        rf_pred_str = f"🟢 {round(rf_pred[1] * 100)}%"
+    if float(X[0][0]) <= 600:
+        et_pred = M10_ET_CLASSIFIER.predict_proba(X)[0]
+        if et_pred[0] > et_pred[1]:
+            et_pred_str = f"🔴 {round(et_pred[0] * 100)}%"
+        else:
+            et_pred_str = f"🟢 {round(et_pred[1] * 100)}%"
 
-    hgb_pred = HGB_CLASSIFIER.predict_proba(X)[0]
-    hgb_pred_str = ''
-    if hgb_pred[0] > hgb_pred[1]:
-        hgb_pred_str = f"🔴 {round(hgb_pred[0] * 100)}%"
-    else:
-        hgb_pred_str = f"🟢 {round(hgb_pred[1] * 100)}%"
+        rf_pred = M10_RF_CLASSIFIER.predict_proba(X)[0]
+        if rf_pred[0] > rf_pred[1]:
+            rf_pred_str = f"🔴 {round(rf_pred[0] * 100)}%"
+        else:
+            rf_pred_str = f"🟢 {round(rf_pred[1] * 100)}%"
 
-    gb_pred = GB_CLASSIFIER.predict_proba(X)[0]
-    gb_pred_str = ''
-    if gb_pred[0] > gb_pred[1]:
-        gb_pred_str = f"🔴 {round(gb_pred[0] * 100)}%"
-    else:
-        gb_pred_str = f"🟢 {round(gb_pred[1] * 100)}%"
+        hgb_pred = M10_HGB_CLASSIFIER.predict_proba(X)[0]
+        if hgb_pred[0] > hgb_pred[1]:
+            hgb_pred_str = f"🔴 {round(hgb_pred[0] * 100)}%"
+        else:
+            hgb_pred_str = f"🟢 {round(hgb_pred[1] * 100)}%"
 
-    avg_dire = (et_pred[0] + rf_pred[0] + hgb_pred[0] + gb_pred[0]) * 25
-    avg_radiant = (et_pred[1] + rf_pred[1] + hgb_pred[1] + gb_pred[1]) * 25
-    avg_str = ''
-    if avg_dire > avg_radiant:
-        avg_str = f"🔴 {round(avg_dire)}%"
-    else:
-        avg_str = f"🟢 {round(avg_radiant)}%"
+        gb_pred = M10_GB_CLASSIFIER.predict_proba(X)[0]
+        if gb_pred[0] > gb_pred[1]:
+            gb_pred_str = f"🔴 {round(gb_pred[0] * 100)}%"
+        else:
+            gb_pred_str = f"🟢 {round(gb_pred[1] * 100)}%"
 
-    cart_pred = CART_CLASSIFIER.predict_proba(X)[0]
-    cart_pred_str = ''
-    if cart_pred[0] > cart_pred[1]:
-        cart_pred_str = f"🔴 {round(cart_pred[0] * 100)}%"
-    else:
-        cart_pred_str = f"🟢 {round(cart_pred[1] * 100)}%"
+        avg_dire = (et_pred[0] + rf_pred[0] + hgb_pred[0] + gb_pred[0]) * 25
+        avg_radiant = (et_pred[1] + rf_pred[1] + hgb_pred[1] + gb_pred[1]) * 25
+        if avg_dire > avg_radiant:
+            avg_str = f"🔴 {round(avg_dire)}%"
+        else:
+            avg_str = f"🟢 {round(avg_radiant)}%"
 
-    c45_pred = C45_CLASSIFIER.predict_proba(X)[0]
-    c45_pred_str = ''
-    if c45_pred[0] > c45_pred[1]:
-        c45_pred_str = f"🔴 {round(c45_pred[0] * 100)}%"
-    else:
-        c45_pred_str = f"🟢 {round(c45_pred[1] * 100)}%"
+        cart_pred = M10_CART_CLASSIFIER.predict_proba(X)[0]
+        if cart_pred[0] > cart_pred[1]:
+            cart_pred_str = f"🔴 {round(cart_pred[0] * 100)}%"
+        else:
+            cart_pred_str = f"🟢 {round(cart_pred[1] * 100)}%"
 
-    ab_pred = AB_CLASSIFIER.predict_proba(X)[0]
-    ab_pred_str = ''
-    if ab_pred[0] > ab_pred[1]:
-        ab_pred_str = f"🔴 {round(ab_pred[0] * 100)}%"
-    else:
-        ab_pred_str = f"🟢 {round(ab_pred[1] * 100)}%"
+        c45_pred = M10_C45_CLASSIFIER.predict_proba(X)[0]
+        if c45_pred[0] > c45_pred[1]:
+            c45_pred_str = f"🔴 {round(c45_pred[0] * 100)}%"
+        else:
+            c45_pred_str = f"🟢 {round(c45_pred[1] * 100)}%"
 
+        ab_pred = M10_AB_CLASSIFIER.predict_proba(X)[0]
+        if ab_pred[0] > ab_pred[1]:
+            ab_pred_str = f"🔴 {round(ab_pred[0] * 100)}%"
+        else:
+            ab_pred_str = f"🟢 {round(ab_pred[1] * 100)}%"
+
+    elif float(X[0][0]) > 600 and float(X[0][0]) <= 1200:
+        et_pred = M20_ET_CLASSIFIER.predict_proba(X)[0]
+        if et_pred[0] > et_pred[1]:
+            et_pred_str = f"🔴 {round(et_pred[0] * 100)}%"
+        else:
+            et_pred_str = f"🟢 {round(et_pred[1] * 100)}%"
+
+        rf_pred = M20_RF_CLASSIFIER.predict_proba(X)[0]
+        if rf_pred[0] > rf_pred[1]:
+            rf_pred_str = f"🔴 {round(rf_pred[0] * 100)}%"
+        else:
+            rf_pred_str = f"🟢 {round(rf_pred[1] * 100)}%"
+
+        hgb_pred = M20_HGB_CLASSIFIER.predict_proba(X)[0]
+        if hgb_pred[0] > hgb_pred[1]:
+            hgb_pred_str = f"🔴 {round(hgb_pred[0] * 100)}%"
+        else:
+            hgb_pred_str = f"🟢 {round(hgb_pred[1] * 100)}%"
+
+        gb_pred = M20_GB_CLASSIFIER.predict_proba(X)[0]
+        if gb_pred[0] > gb_pred[1]:
+            gb_pred_str = f"🔴 {round(gb_pred[0] * 100)}%"
+        else:
+            gb_pred_str = f"🟢 {round(gb_pred[1] * 100)}%"
+
+        avg_dire = (et_pred[0] + rf_pred[0] + hgb_pred[0] + gb_pred[0]) * 25
+        avg_radiant = (et_pred[1] + rf_pred[1] + hgb_pred[1] + gb_pred[1]) * 25
+        if avg_dire > avg_radiant:
+            avg_str = f"🔴 {round(avg_dire)}%"
+        else:
+            avg_str = f"🟢 {round(avg_radiant)}%"
+
+        cart_pred = M20_CART_CLASSIFIER.predict_proba(X)[0]
+        if cart_pred[0] > cart_pred[1]:
+            cart_pred_str = f"🔴 {round(cart_pred[0] * 100)}%"
+        else:
+            cart_pred_str = f"🟢 {round(cart_pred[1] * 100)}%"
+
+        c45_pred = M20_C45_CLASSIFIER.predict_proba(X)[0]
+        if c45_pred[0] > c45_pred[1]:
+            c45_pred_str = f"🔴 {round(c45_pred[0] * 100)}%"
+        else:
+            c45_pred_str = f"🟢 {round(c45_pred[1] * 100)}%"
+
+        ab_pred = M20_AB_CLASSIFIER.predict_proba(X)[0]
+        if ab_pred[0] > ab_pred[1]:
+            ab_pred_str = f"🔴 {round(ab_pred[0] * 100)}%"
+        else:
+            ab_pred_str = f"🟢 {round(ab_pred[1] * 100)}%"
+
+    else:
+        et_pred = M30_ET_CLASSIFIER.predict_proba(X)[0]
+        if et_pred[0] > et_pred[1]:
+            et_pred_str = f"🔴 {round(et_pred[0] * 100)}%"
+        else:
+            et_pred_str = f"🟢 {round(et_pred[1] * 100)}%"
+
+        rf_pred = M30_RF_CLASSIFIER.predict_proba(X)[0]
+        if rf_pred[0] > rf_pred[1]:
+            rf_pred_str = f"🔴 {round(rf_pred[0] * 100)}%"
+        else:
+            rf_pred_str = f"🟢 {round(rf_pred[1] * 100)}%"
+
+        hgb_pred = M30_HGB_CLASSIFIER.predict_proba(X)[0]
+        if hgb_pred[0] > hgb_pred[1]:
+            hgb_pred_str = f"🔴 {round(hgb_pred[0] * 100)}%"
+        else:
+            hgb_pred_str = f"🟢 {round(hgb_pred[1] * 100)}%"
+
+        gb_pred = M30_GB_CLASSIFIER.predict_proba(X)[0]
+        if gb_pred[0] > gb_pred[1]:
+            gb_pred_str = f"🔴 {round(gb_pred[0] * 100)}%"
+        else:
+            gb_pred_str = f"🟢 {round(gb_pred[1] * 100)}%"
+
+        avg_dire = (et_pred[0] + rf_pred[0] + hgb_pred[0] + gb_pred[0]) * 25
+        avg_radiant = (et_pred[1] + rf_pred[1] + hgb_pred[1] + gb_pred[1]) * 25
+        if avg_dire > avg_radiant:
+            avg_str = f"🔴 {round(avg_dire)}%"
+        else:
+            avg_str = f"🟢 {round(avg_radiant)}%"
+
+        cart_pred = M30_CART_CLASSIFIER.predict_proba(X)[0]
+        if cart_pred[0] > cart_pred[1]:
+            cart_pred_str = f"🔴 {round(cart_pred[0] * 100)}%"
+        else:
+            cart_pred_str = f"🟢 {round(cart_pred[1] * 100)}%"
+
+        c45_pred = M30_C45_CLASSIFIER.predict_proba(X)[0]
+        if c45_pred[0] > c45_pred[1]:
+            c45_pred_str = f"🔴 {round(c45_pred[0] * 100)}%"
+        else:
+            c45_pred_str = f"🟢 {round(c45_pred[1] * 100)}%"
+
+        ab_pred = M30_AB_CLASSIFIER.predict_proba(X)[0]
+        if ab_pred[0] > ab_pred[1]:
+            ab_pred_str = f"🔴 {round(ab_pred[0] * 100)}%"
+        else:
+            ab_pred_str = f"🟢 {round(ab_pred[1] * 100)}%"
 
     prediction = """
     🔮Predictions:

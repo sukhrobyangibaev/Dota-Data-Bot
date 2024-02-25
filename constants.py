@@ -96,20 +96,50 @@ users_col = mydb["users"]
 chats_col = mydb["chats"]
 fav_players_col = mydb["fav_players"]
 
-with open('models/et_classifier.pkl', 'rb') as f:
-    ET_CLASSIFIER = pickle.load(f)
-with open('models/rf_classifier.pkl', 'rb') as f:
-    RF_CLASSIFIER = pickle.load(f)
-with open('models/hgb_classifier.pkl', 'rb') as f:
-    HGB_CLASSIFIER = pickle.load(f)
-with open('models/gb_classifier.pkl', 'rb') as f:
-    GB_CLASSIFIER = pickle.load(f)
-with open('models/cart_classifier.pkl', 'rb') as f:
-    CART_CLASSIFIER = pickle.load(f)
-with open('models/cart_classifier.pkl', 'rb') as f:
-    C45_CLASSIFIER = pickle.load(f)
-with open('models/cart_classifier.pkl', 'rb') as f:
-    AB_CLASSIFIER = pickle.load(f)  
+with open('models/10min/et_classifier.pkl', 'rb') as f:
+    M10_ET_CLASSIFIER = pickle.load(f)
+with open('models/10min/rf_classifier.pkl', 'rb') as f:
+    M10_RF_CLASSIFIER = pickle.load(f)
+with open('models/10min/hgb_classifier.pkl', 'rb') as f:
+    M10_HGB_CLASSIFIER = pickle.load(f)
+with open('models/10min/gb_classifier.pkl', 'rb') as f:
+    M10_GB_CLASSIFIER = pickle.load(f)
+with open('models/10min/cart_classifier.pkl', 'rb') as f:
+    M10_CART_CLASSIFIER = pickle.load(f)
+with open('models/10min/cart_classifier.pkl', 'rb') as f:
+    M10_C45_CLASSIFIER = pickle.load(f)
+with open('models/10min/cart_classifier.pkl', 'rb') as f:
+    M10_AB_CLASSIFIER = pickle.load(f)  
+
+with open('models/20min/et_classifier.pkl', 'rb') as f:
+    M20_ET_CLASSIFIER = pickle.load(f)
+with open('models/20min/rf_classifier.pkl', 'rb') as f:
+    M20_RF_CLASSIFIER = pickle.load(f)
+with open('models/20min/hgb_classifier.pkl', 'rb') as f:
+    M20_HGB_CLASSIFIER = pickle.load(f)
+with open('models/20min/gb_classifier.pkl', 'rb') as f:
+    M20_GB_CLASSIFIER = pickle.load(f)
+with open('models/20min/cart_classifier.pkl', 'rb') as f:
+    M20_CART_CLASSIFIER = pickle.load(f)
+with open('models/20min/cart_classifier.pkl', 'rb') as f:
+    M20_C45_CLASSIFIER = pickle.load(f)
+with open('models/20min/cart_classifier.pkl', 'rb') as f:
+    M20_AB_CLASSIFIER = pickle.load(f) 
+
+with open('models/30min/et_classifier.pkl', 'rb') as f:
+    M30_ET_CLASSIFIER = pickle.load(f)
+with open('models/30min/rf_classifier.pkl', 'rb') as f:
+    M30_RF_CLASSIFIER = pickle.load(f)
+with open('models/30min/hgb_classifier.pkl', 'rb') as f:
+    M30_HGB_CLASSIFIER = pickle.load(f)
+with open('models/30min/gb_classifier.pkl', 'rb') as f:
+    M30_GB_CLASSIFIER = pickle.load(f)
+with open('models/30min/cart_classifier.pkl', 'rb') as f:
+    M30_CART_CLASSIFIER = pickle.load(f)
+with open('models/30min/cart_classifier.pkl', 'rb') as f:
+    M30_C45_CLASSIFIER = pickle.load(f)
+with open('models/30min/cart_classifier.pkl', 'rb') as f:
+    M30_AB_CLASSIFIER = pickle.load(f) 
 
 kda_obj = {
     "KILLS": "kills",
