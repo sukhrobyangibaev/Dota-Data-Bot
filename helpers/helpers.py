@@ -272,7 +272,7 @@ def get_league_match_info(match) -> str:
     dire_series_wins = match["dire_series_wins"]
     series_type = match["series_type"]
 
-    trans_dict = str.maketrans("10", "◼◻")
+    trans_dict = str.maketrans("10", "◻▫")
     rts = (
         format(match["scoreboard"]["radiant"]["tower_state"], "b")
         .zfill(11)
@@ -343,12 +343,12 @@ def get_league_match_info(match) -> str:
     📈 XP Lead: {}
 
     Tower State:
-    {}
-    {}
+    🟢{}
+    🔴{}
     
     Barracks State:
-    {}
-    {}
+    🟢{}
+    🔴{}
     """.format(
         radiant,
         dire,
@@ -376,6 +376,9 @@ def get_league_match_features(match):
         return None
 
     features.append(match["scoreboard"]["duration"])
+    features.append(match['radiant_series_wins'])
+    features.append(match['dire_series_wins'])
+    features.append(match["scoreboard"]['radiant']["score"] - match["scoreboard"]['dire']["score"])
 
     rts = match["scoreboard"]["radiant"]["tower_state"]
     for t in format(rts, "b").zfill(11):
@@ -391,39 +394,84 @@ def get_league_match_features(match):
     for t in format(dbs, "b").zfill(6):
         features.append(t)
 
+    radiant_net_worth = 0
+    dire_net_worth = 0
+
+    radiant_assissts = 0
+    dire_assissts = 0
+
+    radiant_last_hits = 0
+    dire_last_hits = 0
+
+    radiant_gold = 0
+    dire_gold = 0
+
+    radiant_level = 0
+    dire_level = 0
+
+    radiant_gpm = 0
+    dire_gpm = 0
+
+    radiant_xpm = 0
+    dire_xpm = 0
+
     for player in match["scoreboard"]["radiant"]["players"]:
-        features.append(player["kills"])
-        features.append(player["death"])
-        features.append(player["assists"])
-        features.append(player["last_hits"])
-        features.append(player["gold"])
-        features.append(player["level"])
-        features.append(player["gold_per_min"])
-        features.append(player["xp_per_min"])
-        features.append(player["item0"])
-        features.append(player["item1"])
-        features.append(player["item2"])
-        features.append(player["item3"])
-        features.append(player["item4"])
-        features.append(player["item5"])
-        features.append(player["net_worth"])
+        # features.append(player["kills"])
+        # features.append(player["death"])
+        # features.append(player["assists"])
+        # features.append(player["last_hits"])
+        # features.append(player["gold"])
+        # features.append(player["level"])
+        # features.append(player["gold_per_min"])
+        # features.append(player["xp_per_min"])
+        # features.append(player["item0"])
+        # features.append(player["item1"])
+        # features.append(player["item2"])
+        # features.append(player["item3"])
+        # features.append(player["item4"])
+        # features.append(player["item5"])
+        # features.append(player["net_worth"])
+
+        radiant_net_worth += player['net_worth']
+        radiant_assissts += player['assists']
+        radiant_last_hits += player['last_hits']
+        radiant_gold += player['gold']
+        radiant_level += player['level']
+        radiant_gpm += player['gold_per_min']
+        radiant_xpm += player['xp_per_min']
 
     for player in match["scoreboard"]["dire"]["players"]:
-        features.append(player["kills"])
-        features.append(player["death"])
-        features.append(player["assists"])
-        features.append(player["last_hits"])
-        features.append(player["gold"])
-        features.append(player["level"])
-        features.append(player["gold_per_min"])
-        features.append(player["xp_per_min"])
-        features.append(player["item0"])
-        features.append(player["item1"])
-        features.append(player["item2"])
-        features.append(player["item3"])
-        features.append(player["item4"])
-        features.append(player["item5"])
-        features.append(player["net_worth"])
+        # features.append(player["kills"])
+        # features.append(player["death"])
+        # features.append(player["assists"])
+        # features.append(player["last_hits"])
+        # features.append(player["gold"])
+        # features.append(player["level"])
+        # features.append(player["gold_per_min"])
+        # features.append(player["xp_per_min"])
+        # features.append(player["item0"])
+        # features.append(player["item1"])
+        # features.append(player["item2"])
+        # features.append(player["item3"])
+        # features.append(player["item4"])
+        # features.append(player["item5"])
+        # features.append(player["net_worth"])
+
+        dire_net_worth += player['net_worth']
+        dire_assissts += player['assists']
+        dire_last_hits += player['last_hits']
+        dire_gold += player['gold']
+        dire_level += player['level']
+        dire_gpm += player['gold_per_min']
+        dire_xpm += player['xp_per_min']
+
+    features.append(radiant_net_worth - dire_net_worth)
+    features.append(radiant_assissts - dire_assissts)
+    features.append(radiant_last_hits - dire_last_hits)
+    features.append(radiant_gold - dire_gold)
+    features.append(radiant_level - dire_level)
+    features.append(radiant_gpm - dire_gpm)
+    features.append(radiant_xpm - dire_xpm)
 
     return np.array([features])
 
@@ -611,6 +659,7 @@ def predict_league_match_result(match):
         Hist Gradient Boosting: {}
         Gradient Boosting: {}
             Average: {}
+
         CART: {}
         C4.5: {}
         Adaptive Boosting: {}""".format(
