@@ -272,7 +272,7 @@ def get_league_match_info(match) -> str:
     dire_series_wins = match["dire_series_wins"]
     series_type = match["series_type"]
 
-    trans_dict = str.maketrans("10", "◻◼")
+    trans_dict = str.maketrans("10", "◼◻")
     rts = (
         format(match["scoreboard"]["radiant"]["tower_state"], "b")
         .zfill(11)
@@ -342,7 +342,7 @@ def get_league_match_info(match) -> str:
     📈 Net Worth Lead: {}
     📈 XP Lead: {}
 
-    Tower State:\n
+    Tower State:
     {}
     {}
     
