@@ -28,6 +28,8 @@ from constants import (
     mydb,
     logger,
     pro_players_col,
+    items_model,
+    heroes_model,
 )
 
 
@@ -415,6 +417,12 @@ def get_league_match_features(match):
     radiant_xpm = 0
     dire_xpm = 0
 
+    radiant_hero_embeddings = []
+    dire_hero_embeddings = []
+
+    radiant_item_embeddings = []
+    dire_item_embeddings = []
+
     for player in match["scoreboard"]["radiant"]["players"]:
         # features.append(player["kills"])
         # features.append(player["death"])
@@ -431,6 +439,14 @@ def get_league_match_features(match):
         # features.append(player["item4"])
         # features.append(player["item5"])
         # features.append(player["net_worth"])
+        radiant_item_embeddings.append(np.mean(items_model.wv[str(player["item0"])]))
+        radiant_item_embeddings.append(np.mean(items_model.wv[str(player["item1"])]))
+        radiant_item_embeddings.append(np.mean(items_model.wv[str(player["item2"])]))
+        radiant_item_embeddings.append(np.mean(items_model.wv[str(player["item3"])]))
+        radiant_item_embeddings.append(np.mean(items_model.wv[str(player["item4"])]))
+        radiant_item_embeddings.append(np.mean(items_model.wv[str(player["item5"])]))
+
+        radiant_hero_embeddings.append(np.mean(heroes_model.wv[str(player["hero_id"])]))
 
         radiant_net_worth += player['net_worth']
         radiant_assissts += player['assists']
@@ -456,6 +472,14 @@ def get_league_match_features(match):
         # features.append(player["item4"])
         # features.append(player["item5"])
         # features.append(player["net_worth"])
+        dire_item_embeddings.append(np.mean(items_model.wv[str(player["item0"])]))
+        dire_item_embeddings.append(np.mean(items_model.wv[str(player["item1"])]))
+        dire_item_embeddings.append(np.mean(items_model.wv[str(player["item2"])]))
+        dire_item_embeddings.append(np.mean(items_model.wv[str(player["item3"])]))
+        dire_item_embeddings.append(np.mean(items_model.wv[str(player["item4"])]))
+        dire_item_embeddings.append(np.mean(items_model.wv[str(player["item5"])]))
+
+        dire_hero_embeddings.append(np.mean(heroes_model.wv[str(player["hero_id"])]))
 
         dire_net_worth += player['net_worth']
         dire_assissts += player['assists']
@@ -464,6 +488,11 @@ def get_league_match_features(match):
         dire_level += player['level']
         dire_gpm += player['gold_per_min']
         dire_xpm += player['xp_per_min']
+
+    features.append(np.mean(radiant_item_embeddings))
+    features.append(np.mean(dire_item_embeddings))
+    features.append(np.mean(radiant_hero_embeddings))
+    features.append(np.mean(dire_hero_embeddings))
 
     features.append(radiant_net_worth - dire_net_worth)
     features.append(radiant_assissts - dire_assissts)

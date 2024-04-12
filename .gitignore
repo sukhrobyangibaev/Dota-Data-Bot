@@ -5,3 +5,5 @@ dota_data_bot.log
 .env
 *.pkl
 .DS_Store
+dota2_items_embeddings.model
+winner_hero_embeddings.model

@@ -2,6 +2,7 @@ import logging
 import pickle
 import sys
 import pymongo
+from gensim.models import Word2Vec
 
 logging.basicConfig(
     # filename='dota_data_bot.log',
@@ -140,6 +141,9 @@ with open('models/30min/cart_classifier.pkl', 'rb') as f:
     M30_C45_CLASSIFIER = pickle.load(f)
 with open('models/30min/cart_classifier.pkl', 'rb') as f:
     M30_AB_CLASSIFIER = pickle.load(f) 
+
+heroes_model = Word2Vec.load("models/winner_hero_embeddings.model")
+items_model = Word2Vec.load("models/dota2_items_embeddings.model")
 
 kda_obj = {
     "KILLS": "kills",
