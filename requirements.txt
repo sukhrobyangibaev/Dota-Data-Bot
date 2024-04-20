@@ -1,0 +1,8 @@
+gensim==4.3.2
+matplotlib==3.8.2
+numpy==1.26.4
+pandas==2.2.2
+pymongo==4.6.1
+python-dotenv==1.0.1
+python-telegram-bot==21.1.1
+Requests==2.31.0
