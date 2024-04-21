@@ -5,10 +5,25 @@ This project is a Telegram bot that provides various statistics and predictions 
 ## Features
 
 - Fetches and displays match data from the OpenDota API.
+
+![11](images/11.png)
+
 - Provides player statistics, including win/loss ratios, recent matches, player heroes stats, peers, totals, leaver status, and wordcloud.
+
+![22](images/22.png)
+
 - Allows users to add and manage favourite players.
+
+![33](images/33.png)
+
 - Provides live match updates.
+
+![44](images/44.png)
+
 - Predicts match outcomes using pre-trained machine learning models.
+
+![1](images/1.png) 
+![2](images/2.png)
 
 ## Code Structure
 
